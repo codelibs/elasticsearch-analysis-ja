@@ -14,6 +14,7 @@
 				<exclude>org.elasticsearch:elasticsearch</exclude>
 				<exclude>org.apache.lucene:lucene-core</exclude>
 				<exclude>org.apache.lucene:lucene-analyzers-common</exclude>
+				<exclude>org.apache.lucene:lucene-analyzers-kuromoji</exclude>
 			</excludes>
 		</dependencySet>
 	</dependencySets>

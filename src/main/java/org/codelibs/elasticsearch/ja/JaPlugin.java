@@ -1,5 +1,8 @@
 package org.codelibs.elasticsearch.ja;
 
+import org.codelibs.elasticsearch.ja.analysis.IterationMarkCharFilterFactory;
+import org.codelibs.elasticsearch.ja.analysis.KanjiNumberFilterFactory;
+import org.codelibs.elasticsearch.ja.analysis.ProlongedSoundMarkCharFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.ReloadableKuromojiTokenizerFactory;
 import org.elasticsearch.index.analysis.AnalysisModule;
 import org.elasticsearch.plugins.AbstractPlugin;
@@ -7,7 +10,7 @@ import org.elasticsearch.plugins.AbstractPlugin;
 public class JaPlugin extends AbstractPlugin {
     @Override
     public String name() {
-        return "JaPlugin";
+        return "Analysis Ja Plugin";
     }
 
     @Override
@@ -16,8 +19,17 @@ public class JaPlugin extends AbstractPlugin {
     }
 
     public void onModule(AnalysisModule module) {
+        module.addCharFilter("iteration_mark",
+                IterationMarkCharFilterFactory.class);
+        module.addCharFilter("prolonged_sound_mark",
+                ProlongedSoundMarkCharFilterFactory.class);
+
         module.addTokenizer("reloadable_kuromoji_tokenizer",
                 ReloadableKuromojiTokenizerFactory.class);
+        module.addTokenizer("reloadable_kuromoji",
+                ReloadableKuromojiTokenizerFactory.class);
+
+        module.addTokenFilter("kanji_number", KanjiNumberFilterFactory.class);
     }
 
 }

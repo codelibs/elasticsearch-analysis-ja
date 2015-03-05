@@ -95,7 +95,7 @@ public class JaPluginTest {
         final String indexSettings = "{\"index\":{\"analysis\":{"
                 + "\"tokenizer\":{"//
                 + "\"kuromoji_user_dict\":{\"type\":\"kuromoji_tokenizer\",\"mode\":\"extended\",\"user_dictionary\":\"userdict_ja.txt\"},"
-                + "\"kuromoji_user_dict_reload\":{\"type\":\"reloadable_kuromoji_tokenizer\",\"mode\":\"extended\",\"user_dictionary\":\"userdict_ja.txt\",\"reload_interval\":\"1s\"}"
+                + "\"kuromoji_user_dict_reload\":{\"type\":\"reloadable_kuromoji\",\"mode\":\"extended\",\"user_dictionary\":\"userdict_ja.txt\",\"reload_interval\":\"1s\"}"
                 + "},"//
                 + "\"analyzer\":{"
                 + "\"ja_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"kuromoji_user_dict\",\"filter\":[\"kuromoji_stemmer\"]},"
@@ -207,6 +207,225 @@ public class JaPluginTest {
                 assertEquals("朝青龍", tokens.get(0).get("token").toString());
             }
         }
+    }
+
+    @Test
+    public void test_iteration_mark() throws Exception {
+        runner.ensureYellow();
+        Node node = runner.node();
+
+        final String index = "dataset";
+        final String type = "item";
+
+        final String indexSettings = "{\"index\":{\"analysis\":{"
+                + "\"analyzer\":{"
+                + "\"ja_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\"},"
+                + "\"ja_imark_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\",\"char_filter\":[\"iteration_mark\"]}"
+                + "}"//
+                + "}}}";
+        runner.createIndex(index,
+                ImmutableSettings.builder().loadFromSource(indexSettings)
+                        .build());
+
+        // create a mapping
+        final XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()//
+                .startObject()//
+                .startObject(type)//
+                .startObject("properties")//
+
+                // id
+                .startObject("id")//
+                .field("type", "string")//
+                .field("index", "not_analyzed")//
+                .endObject()//
+
+                // msg1
+                .startObject("msg1")//
+                .field("type", "string")//
+                .field("analyzer", "ja_imark_analyzer")//
+                .endObject()//
+
+                // msg2
+                .startObject("msg2")//
+                .field("type", "string")//
+                .field("analyzer", "ja_analyzer")//
+                .endObject()//
+
+                .endObject()//
+                .endObject()//
+                .endObject();
+        runner.createMapping(index, type, mappingBuilder);
+
+        final IndexResponse indexResponse1 = runner.insert(index, type, "1",
+                "{\"msg1\":\"時々\", \"msg2\":\"時々\", \"id\":\"1\"}");
+        assertTrue(indexResponse1.isCreated());
+        runner.refresh();
+
+        String[] inputs = new String[] { "こゝ ここ", "バナヽ バナナ", "学問のすゝめ 学問のすすめ",
+                "いすゞ いすず", "づゝ づつ", "ぶゞ漬け ぶぶ漬け", "各〻 各各" };
+
+        assertDocCount(1, index, type, "msg1", "時々");
+        assertDocCount(1, index, type, "msg1", "時時");
+        assertDocCount(1, index, type, "msg2", "時々");
+
+        for (int i = 0; i < inputs.length; i++) {
+            String[] values = inputs[i].split(" ");
+            try (CurlResponse response = Curl
+                    .post(node, "/" + index + "/_analyze")
+                    .param("analyzer", "ja_imark_analyzer").body(values[0])
+                    .execute()) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
+                        .getContentAsMap().get("tokens");
+                assertEquals(values[1], tokens.get(0).get("token").toString());
+            }
+        }
+
+    }
+
+    @Test
+    public void test_prolonged_sound_mark() throws Exception {
+        runner.ensureYellow();
+        Node node = runner.node();
+
+        final String index = "dataset";
+        final String type = "item";
+
+        final String indexSettings = "{\"index\":{\"analysis\":{"
+                + "\"analyzer\":{"
+                + "\"ja_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\"},"
+                + "\"ja_psmark_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\",\"char_filter\":[\"prolonged_sound_mark\"]}"
+                + "}"//
+                + "}}}";
+        runner.createIndex(index,
+                ImmutableSettings.builder().loadFromSource(indexSettings)
+                        .build());
+
+        // create a mapping
+        final XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()//
+                .startObject()//
+                .startObject(type)//
+                .startObject("properties")//
+
+                // id
+                .startObject("id")//
+                .field("type", "string")//
+                .field("index", "not_analyzed")//
+                .endObject()//
+
+                // msg1
+                .startObject("msg1")//
+                .field("type", "string")//
+                .field("analyzer", "ja_psmark_analyzer")//
+                .endObject()//
+
+                // msg2
+                .startObject("msg2")//
+                .field("type", "string")//
+                .field("analyzer", "ja_analyzer")//
+                .endObject()//
+
+                .endObject()//
+                .endObject()//
+                .endObject();
+        runner.createMapping(index, type, mappingBuilder);
+
+        final IndexResponse indexResponse1 = runner.insert(index, type, "1",
+                "{\"msg1\":\"あ‐\", \"msg2\":\"あ‐\", \"id\":\"1\"}");
+        assertTrue(indexResponse1.isCreated());
+        runner.refresh();
+
+        String[] psms = new String[] { "\u002d", "\uff0d", "\u2010", "\u2011",
+                "\u2012", "\u2013", "\u2014", "\u2015", "\u207b", "\u208b",
+                "\u30fc" };
+
+        assertDocCount(1, index, type, "msg1", "あ‐");
+        assertDocCount(1, index, type, "msg2", "あ‐");
+
+        for (String psm : psms) {
+            assertDocCount(1, index, type, "msg1", "あ" + psm);
+            try (CurlResponse response = Curl
+                    .post(node, "/" + index + "/_analyze")
+                    .param("analyzer", "ja_psmark_analyzer").body("あ" + psm)
+                    .execute()) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
+                        .getContentAsMap().get("tokens");
+                assertEquals("あー", tokens.get(0).get("token").toString());
+            }
+        }
+
+    }
+
+    @Test
+    public void test_kanji_number() throws Exception {
+        runner.ensureYellow();
+        Node node = runner.node();
+
+        final String index = "dataset";
+        final String type = "item";
+
+        final String indexSettings = "{\"index\":{\"analysis\":{"
+                + "\"tokenizer\":{"//
+                + "\"kuromoji_user_dict\":{\"type\":\"kuromoji_tokenizer\",\"mode\":\"extended\"}"
+                + "},"//
+                + "\"analyzer\":{"
+                + "\"ja_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"kuromoji_user_dict\"},"
+                + "\"ja_knum_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"kuromoji_user_dict\",\"filter\":[\"kanji_number\"]}"
+                + "}"//
+                + "}}}";
+        runner.createIndex(index,
+                ImmutableSettings.builder().loadFromSource(indexSettings)
+                        .build());
+
+        // create a mapping
+        final XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()//
+                .startObject()//
+                .startObject(type)//
+                .startObject("properties")//
+
+                // id
+                .startObject("id")//
+                .field("type", "string")//
+                .field("index", "not_analyzed")//
+                .endObject()//
+
+                // msg1
+                .startObject("msg1")//
+                .field("type", "string")//
+                .field("analyzer", "ja_knum_analyzer")//
+                .endObject()//
+
+                // msg2
+                .startObject("msg2")//
+                .field("type", "string")//
+                .field("analyzer", "ja_analyzer")//
+                .endObject()//
+
+                .endObject()//
+                .endObject()//
+                .endObject();
+        runner.createMapping(index, type, mappingBuilder);
+
+        final IndexResponse indexResponse1 = runner.insert(index, type, "1",
+                "{\"msg1\":\"十二時間\", \"msg2\":\"十二時間\", \"id\":\"1\"}");
+        assertTrue(indexResponse1.isCreated());
+        runner.refresh();
+
+        assertDocCount(1, index, type, "msg1", "十二時間");
+        assertDocCount(1, index, type, "msg1", "12時間");
+        assertDocCount(1, index, type, "msg2", "十二時間");
+        assertDocCount(0, index, type, "msg2", "12時間");
+
+        try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze")
+                .param("analyzer", "ja_knum_analyzer").body("一億九千万円").execute()) {
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
+                    .getContentAsMap().get("tokens");
+            assertEquals("190000000", tokens.get(0).get("token").toString());
+            assertEquals("円", tokens.get(1).get("token").toString());
+        }
+
     }
 
     private void assertDocCount(int expected, final String index,

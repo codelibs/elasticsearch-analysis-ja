@@ -99,7 +99,7 @@ This char filter name is "prolonged_sound_mark" as below.
 ### KanjiNumberFilter (TokenFilter)
 
 KanjiNumberFilter relaces Kanji number character(ex. "一") with a number character(ex. "1").
-This token filter name is "".
+This token filter name is "kanji_number".
 
     curl -XPUT 'http://localhost:9200/sample/' -d'
     {

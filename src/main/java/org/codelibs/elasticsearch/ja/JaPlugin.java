@@ -10,7 +10,7 @@ import org.elasticsearch.plugins.AbstractPlugin;
 public class JaPlugin extends AbstractPlugin {
     @Override
     public String name() {
-        return "Analysis Ja Plugin";
+        return "AnalysisJaPlugin";
     }
 
     @Override

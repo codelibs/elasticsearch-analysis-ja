@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.codelibs</groupId>
 	<artifactId>elasticsearch-analysis-ja</artifactId>
-	<version>1.4.1-SNAPSHOT</version>
+	<version>1.5.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<description>This plugin provides an analysis library for Japanese.</description>
 	<inceptionYear>2011</inceptionYear>
@@ -26,8 +26,8 @@
 		<version>9</version>
 	</parent>
 	<properties>
-		<elasticsearch.version>1.4.4</elasticsearch.version>
-		<lucene.version>4.10.3</lucene.version>
+		<elasticsearch.version>1.5.0</elasticsearch.version>
+		<lucene.version>4.10.4</lucene.version>
 		<kuromoji.plugin.version>2.4.2</kuromoji.plugin.version>
 	</properties>
 	<build>
@@ -90,13 +90,7 @@
 		<dependency>
 			<groupId>org.codelibs</groupId>
 			<artifactId>analyzers-ja</artifactId>
-			<version>4.10.3.0</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>icu4j</artifactId>
-					<groupId>com.ibm.icu</groupId>
-				</exclusion>
-			</exclusions>
+			<version>4.10.4.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>
@@ -113,7 +107,7 @@
 		<dependency>
 			<groupId>org.codelibs</groupId>
 			<artifactId>elasticsearch-cluster-runner</artifactId>
-			<version>1.4.2.0</version>
+			<version>1.5.0.0</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

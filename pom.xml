@@ -90,7 +90,7 @@
 		<dependency>
 			<groupId>org.codelibs</groupId>
 			<artifactId>analyzers-ja</artifactId>
-			<version>4.10.4.0</version>
+			<version>4.10.4.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>

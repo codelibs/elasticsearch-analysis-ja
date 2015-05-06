@@ -124,6 +124,77 @@ This token filter name is "kanji_number".
         }
     }'
 
+### CharTypeFilter (TokenFilter)
+
+CharTypeFilter keeps tokens which contains "alphabetic", "digit" or "letter" character.
+The following setting is that tokens which contain "letter" character are kept(only "digit" token is removed).
+
+    curl -XPUT 'http://localhost:9200/sample/' -d'
+    {
+        "settings": {
+            "index":{
+                "analysis":{
+                    ...,
+                    "filter" : {
+                        "letter_filter" : {
+                            "type" : "char_type",
+                            "digit" : false
+                        }
+                    },
+                    "analyzer" : {
+                        "my_analyzer" : {
+                            "type" : "custom",
+                            "tokenizer" : "kuromoji_user_dict",
+                            "filter":["letter_filter"]
+                        }
+                    }
+                }
+            }
+        }
+    }'
+
+"alphabetic", "digit" and "letter" property are true as default.
+
+| Token  | None   | digit:false | letter:false | 
+|:-------|:------:|:-----------:|:------------:|
+| abc    | keep   | keep        | keep         |
+| ab1    | keep   | keep        | keep         |
+| abあ   | keep   | keep        | keep         |
+| 123    | keep   | remove      | keep         |
+| 12あ   | keep   | keep        | keep         |
+| あいう | keep   | keep        | remove       |
+| #-=    | remove | remove      | remove       |
+
+### NumberConcatenationFilter
+
+NumberConcatenationFilter concatenates a token followed by a number.
+For example, "10" and "years" are converted to "10years".
+
+    curl -XPUT 'http://localhost:9200/sample/' -d'
+    {
+        "settings": {
+            "index":{
+                "analysis":{
+                    ...,
+                    "filter" : {
+                        "numconcat_filter" : {
+                            "type" : "number_concat",
+                            "suffix_words_path" : "suffix.txt"
+                        }
+                    },
+                    "analyzer" : {
+                        "my_analyzer" : {
+                            "type" : "custom",
+                            "tokenizer" : "kuromoji_user_dict",
+                            "filter":["numconcat_filter"]
+                        }
+                    }
+                }
+            }
+        }
+    }'
+
+
 ### ReloadableKuromojiTokenizer (Tokenizer)
 
 ReloadableKuromojiTokenizer reloads a user-dictionary file when it's updated.

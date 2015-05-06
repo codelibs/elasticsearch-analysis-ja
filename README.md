@@ -194,6 +194,36 @@ For example, "10" and "years" are converted to "10years".
         }
     }'
 
+### PatternConcatenationFilter
+
+PatternConcatenationFilter concatenates 2 token matched with pattern1 and pattern2.
+For example, "10" and "years" are converted to "10years".
+
+    curl -XPUT 'http://localhost:9200/sample/' -d'
+    {
+        "settings": {
+            "index":{
+                "analysis":{
+                    ...,
+                    "filter" : {
+                        "patternconcat_filter" : {
+                            "type" : "pattern_concat",
+                            "pattern1" : "[0-9]+",
+                            "pattern2" : "year(s)?"
+                        }
+                    },
+                    "analyzer" : {
+                        "my_analyzer" : {
+                            "type" : "custom",
+                            "tokenizer" : "kuromoji_user_dict",
+                            "filter":["patternconcat_filter"]
+                        }
+                    }
+                }
+            }
+        }
+    }'
+
 
 ### ReloadableKuromojiTokenizer (Tokenizer)
 

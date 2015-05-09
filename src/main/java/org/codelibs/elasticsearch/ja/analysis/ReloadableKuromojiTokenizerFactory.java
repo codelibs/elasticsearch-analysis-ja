@@ -21,10 +21,13 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.util.EnumMap;
 
 import org.apache.lucene.analysis.Tokenizer;
 import org.apache.lucene.analysis.ja.JapaneseTokenizer;
 import org.apache.lucene.analysis.ja.JapaneseTokenizer.Mode;
+import org.apache.lucene.analysis.ja.JapaneseTokenizer.Type;
+import org.apache.lucene.analysis.ja.dict.Dictionary;
 import org.apache.lucene.analysis.ja.dict.TokenInfoFST;
 import org.apache.lucene.analysis.ja.dict.UserDictionary;
 import org.apache.lucene.util.AttributeSource;
@@ -65,6 +68,8 @@ public class ReloadableKuromojiTokenizerFactory extends
     protected final Field userFSTField;
 
     protected final Field userFSTReaderField;
+
+    protected final Field dictionaryMapField;
 
     private Environment env;
 
@@ -108,6 +113,9 @@ public class ReloadableKuromojiTokenizerFactory extends
             userFSTReaderField = JapaneseTokenizer.class
                     .getDeclaredField("userFSTReader");
             userFSTReaderField.setAccessible(true);
+            dictionaryMapField = JapaneseTokenizer.class
+                    .getDeclaredField("dictionaryMap");
+            dictionaryMapField.setAccessible(true);
         } catch (final Exception e) {
             throw new ElasticsearchIllegalArgumentException(
                     "Failed to load fields.", e);
@@ -225,6 +233,9 @@ public class ReloadableKuromojiTokenizerFactory extends
                         userFSTField.set(tokenizer, userFst);
                         userFSTReaderField.set(tokenizer,
                                 userFst.getBytesReader());
+                        @SuppressWarnings("unchecked")
+                        EnumMap<Type, Dictionary> dictionaryMap = (EnumMap<Type, Dictionary>) dictionaryMapField.get(tokenizer);
+                        dictionaryMap.put(Type.USER, userDictionary);
                     } catch (final Exception e) {
                         throw new IllegalStateException(
                                 "Failed to update the tokenizer.", e);

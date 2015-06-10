@@ -28,7 +28,7 @@
 	<properties>
 		<elasticsearch.version>1.6.0</elasticsearch.version>
 		<lucene.version>4.10.4</lucene.version>
-		<kuromoji.plugin.version>2.6.0-SNAPSHOT</kuromoji.plugin.version>
+		<kuromoji.plugin.version>2.6.0</kuromoji.plugin.version>
 	</properties>
 	<build>
 		<resources>

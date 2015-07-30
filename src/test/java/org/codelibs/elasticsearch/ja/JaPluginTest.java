@@ -50,6 +50,7 @@ public class JaPluginTest {
                 settingsBuilder.put("http.cors.enabled", true);
                 settingsBuilder.put("index.number_of_replicas", 0);
                 settingsBuilder.put("index.number_of_shards", 3);
+                settingsBuilder.put("index.unassigned.node_left.delayed_timeout","0");
             }
         }).build(newConfigs().ramIndexStore().numOfNode(numOfNode)
                 .clusterName(UUID.randomUUID().toString()));

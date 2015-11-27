@@ -8,12 +8,12 @@ import org.codelibs.elasticsearch.ja.analysis.PatternConcatenationFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.ProlongedSoundMarkCharFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.ReloadableKuromojiTokenizerFactory;
 import org.elasticsearch.index.analysis.AnalysisModule;
-import org.elasticsearch.plugins.AbstractPlugin;
+import org.elasticsearch.plugins.Plugin;
 
-public class JaPlugin extends AbstractPlugin {
+public class JaPlugin extends Plugin {
     @Override
     public String name() {
-        return "AnalysisJaPlugin";
+        return "analysis-ja";
     }
 
     @Override

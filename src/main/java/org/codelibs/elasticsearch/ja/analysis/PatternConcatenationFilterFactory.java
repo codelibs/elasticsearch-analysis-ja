@@ -10,7 +10,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.Index;
 import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;
-import org.elasticsearch.index.settings.IndexSettings;
+import org.elasticsearch.index.settings.IndexSettingsService;
 
 public class PatternConcatenationFilterFactory extends
         AbstractTokenFilterFactory {
@@ -21,9 +21,9 @@ public class PatternConcatenationFilterFactory extends
 
     @Inject
     public PatternConcatenationFilterFactory(Index index,
-            @IndexSettings Settings indexSettings, @Assisted String name,
+            IndexSettingsService indexSettingsService, @Assisted String name,
             @Assisted Settings settings, Environment env) {
-        super(index, indexSettings, name, settings);
+        super(index, indexSettingsService.getSettings(), name, settings);
 
         String pattern1Str = settings.get("pattern1");
         String pattern2Str = settings.get("pattern2", ".*");

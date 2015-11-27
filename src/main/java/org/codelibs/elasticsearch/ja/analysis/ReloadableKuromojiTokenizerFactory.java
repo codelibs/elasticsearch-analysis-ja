@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.EnumMap;
 
 import org.apache.lucene.analysis.Tokenizer;
@@ -31,7 +32,6 @@ import org.apache.lucene.analysis.ja.dict.Dictionary;
 import org.apache.lucene.analysis.ja.dict.TokenInfoFST;
 import org.apache.lucene.analysis.ja.dict.UserDictionary;
 import org.apache.lucene.util.AttributeSource;
-import org.elasticsearch.ElasticsearchIllegalArgumentException;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.assistedinject.Assisted;
 import org.elasticsearch.common.settings.Settings;
@@ -40,7 +40,7 @@ import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.Index;
 import org.elasticsearch.index.analysis.AbstractTokenizerFactory;
 import org.elasticsearch.index.analysis.KuromojiTokenizerFactory;
-import org.elasticsearch.index.settings.IndexSettings;
+import org.elasticsearch.index.settings.IndexSettingsService;
 
 public class ReloadableKuromojiTokenizerFactory extends
         AbstractTokenizerFactory {
@@ -91,9 +91,9 @@ public class ReloadableKuromojiTokenizerFactory extends
 
     @Inject
     public ReloadableKuromojiTokenizerFactory(final Index index,
-            @IndexSettings final Settings indexSettings, final Environment env,
+            final IndexSettingsService indexSettingsService, final Environment env,
             @Assisted final String name, @Assisted final Settings settings) {
-        super(index, indexSettings, name, settings);
+        super(index, indexSettingsService.getSettings(), name, settings);
         this.env = env;
         this.settings = settings;
         mode = KuromojiTokenizerFactory.getMode(settings);
@@ -117,7 +117,7 @@ public class ReloadableKuromojiTokenizerFactory extends
                     .getDeclaredField("dictionaryMap");
             dictionaryMapField.setAccessible(true);
         } catch (final Exception e) {
-            throw new ElasticsearchIllegalArgumentException(
+            throw new IllegalArgumentException(
                     "Failed to load fields.", e);
         }
 
@@ -125,10 +125,10 @@ public class ReloadableKuromojiTokenizerFactory extends
 
         final String monitoringFilePath = settings.get("user_dictionary");
         if (monitoringFilePath != null) {
-            URL fileUrl = env.resolveConfig(monitoringFilePath);
+            Path path = env.configFile().resolve(monitoringFilePath);
 
             try {
-                final File file = new File(fileUrl.toURI());
+                final File file = path.toFile();
                 if (file.exists()) {
                     reloadableFile = file;
                     dictionaryTimestamp = reloadableFile.lastModified();
@@ -143,7 +143,7 @@ public class ReloadableKuromojiTokenizerFactory extends
                     }
                 }
             } catch (Exception e) {
-                throw new ElasticsearchIllegalArgumentException(
+                throw new IllegalArgumentException(
                         "Could not access " + monitoringFilePath, e);
             }
         }
@@ -151,8 +151,8 @@ public class ReloadableKuromojiTokenizerFactory extends
     }
 
     @Override
-    public Tokenizer create(final Reader input) {
-        return new TokenizerWrapper(input);
+    public Tokenizer create() {
+        return new TokenizerWrapper();
     }
 
     private void updateUserDictionary() {
@@ -178,11 +178,11 @@ public class ReloadableKuromojiTokenizerFactory extends
 
         private long tokenizerTimestamp;
 
-        TokenizerWrapper(final Reader input) {
-            super(ILLEGAL_STATE_READER);
+        TokenizerWrapper() {
+            super();
 
             tokenizerTimestamp = dictionaryTimestamp;
-            tokenizer = new JapaneseTokenizer(input, userDictionary,
+            tokenizer = new JapaneseTokenizer(userDictionary,
                     discartPunctuation, mode);
 
             try {

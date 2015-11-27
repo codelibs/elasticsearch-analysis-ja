@@ -7,7 +7,7 @@ import org.elasticsearch.common.inject.assistedinject.Assisted;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.index.Index;
 import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;
-import org.elasticsearch.index.settings.IndexSettings;
+import org.elasticsearch.index.settings.IndexSettingsService;
 
 public class CharTypeFilterFactory extends AbstractTokenFilterFactory {
 
@@ -19,9 +19,9 @@ public class CharTypeFilterFactory extends AbstractTokenFilterFactory {
 
     @Inject
     public CharTypeFilterFactory(Index index,
-            @IndexSettings Settings indexSettings, @Assisted String name,
+            IndexSettingsService indexSettingsService, @Assisted String name,
             @Assisted Settings settings) {
-        super(index, indexSettings, name, settings);
+        super(index, indexSettingsService.getSettings(), name, settings);
 
         alphabetic = settings.getAsBoolean("alphabetic", true);
         digit = settings.getAsBoolean("digit", true);

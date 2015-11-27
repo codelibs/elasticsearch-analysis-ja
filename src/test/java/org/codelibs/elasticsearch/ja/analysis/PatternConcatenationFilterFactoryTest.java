@@ -10,8 +10,8 @@ import java.util.UUID;
 import org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner;
 import org.codelibs.elasticsearch.runner.net.Curl;
 import org.codelibs.elasticsearch.runner.net.CurlResponse;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.ImmutableSettings.Builder;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.settings.Settings.Builder;
 import org.elasticsearch.node.Node;
 import org.junit.After;
 import org.junit.Before;
@@ -23,18 +23,23 @@ public class PatternConcatenationFilterFactoryTest {
 
     private int numOfNode = 1;
 
+    private String clusterName;
+
     @Before
     public void setUp() throws Exception {
+        clusterName = "es-analysisja-" + System.currentTimeMillis();
         runner = new ElasticsearchClusterRunner();
         runner.onBuild(new ElasticsearchClusterRunner.Builder() {
             @Override
             public void build(final int number, final Builder settingsBuilder) {
                 settingsBuilder.put("http.cors.enabled", true);
-                settingsBuilder.put("index.number_of_replicas", 0);
                 settingsBuilder.put("index.number_of_shards", 3);
+                settingsBuilder.put("index.number_of_replicas", 0);
+                settingsBuilder.putArray("discovery.zen.ping.unicast.hosts", "localhost:9301-9310");
+                settingsBuilder.put("plugin.types", "org.codelibs.elasticsearch.ja.JaPlugin");
                 settingsBuilder.put("index.unassigned.node_left.delayed_timeout","0");
             }
-        }).build(newConfigs().ramIndexStore().numOfNode(numOfNode)
+        }).build(newConfigs().clusterName(clusterName).numOfNode(numOfNode)
                 .clusterName(UUID.randomUUID().toString()));
     }
 
@@ -62,7 +67,7 @@ public class PatternConcatenationFilterFactoryTest {
                 + "}"//
                 + "}}}";
         runner.createIndex(index,
-                ImmutableSettings.builder().loadFromSource(indexSettings)
+                Settings.builder().loadFromSource(indexSettings)
                         .build());
 
         {

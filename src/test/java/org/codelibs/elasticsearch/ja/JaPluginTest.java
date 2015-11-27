@@ -20,8 +20,8 @@ import org.codelibs.elasticsearch.runner.net.Curl;
 import org.codelibs.elasticsearch.runner.net.CurlResponse;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.elasticsearch.common.settings.ImmutableSettings.Builder;
+import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.settings.Settings.Builder;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.elasticsearch.index.query.MatchQueryBuilder.Type;
@@ -41,18 +41,23 @@ public class JaPluginTest {
 
     private int numOfDocs = 1000;
 
+    private String clusterName;
+
     @Before
     public void setUp() throws Exception {
+        clusterName = "es-analysisja-" + System.currentTimeMillis();
         runner = new ElasticsearchClusterRunner();
         runner.onBuild(new ElasticsearchClusterRunner.Builder() {
             @Override
             public void build(final int number, final Builder settingsBuilder) {
                 settingsBuilder.put("http.cors.enabled", true);
-                settingsBuilder.put("index.number_of_replicas", 0);
                 settingsBuilder.put("index.number_of_shards", 3);
+                settingsBuilder.put("index.number_of_replicas", 0);
+                settingsBuilder.putArray("discovery.zen.ping.unicast.hosts", "localhost:9301-9310");
+                settingsBuilder.put("plugin.types", "org.codelibs.elasticsearch.ja.JaPlugin,org.elasticsearch.plugin.analysis.kuromoji.AnalysisKuromojiPlugin");
                 settingsBuilder.put("index.unassigned.node_left.delayed_timeout","0");
             }
-        }).build(newConfigs().ramIndexStore().numOfNode(numOfNode)
+        }).build(newConfigs().clusterName(clusterName).numOfNode(numOfNode)
                 .clusterName(UUID.randomUUID().toString()));
 
         userDictFiles = null;
@@ -106,7 +111,7 @@ public class JaPluginTest {
                 + "}"//
                 + "}}}";
         runner.createIndex(index,
-                ImmutableSettings.builder().loadFromSource(indexSettings)
+                Settings.builder().loadFromSource(indexSettings)
                         .build());
 
         // create a mapping
@@ -227,7 +232,7 @@ public class JaPluginTest {
                 + "}"//
                 + "}}}";
         runner.createIndex(index,
-                ImmutableSettings.builder().loadFromSource(indexSettings)
+                Settings.builder().loadFromSource(indexSettings)
                         .build());
 
         // create a mapping
@@ -301,7 +306,7 @@ public class JaPluginTest {
                 + "}"//
                 + "}}}";
         runner.createIndex(index,
-                ImmutableSettings.builder().loadFromSource(indexSettings)
+                Settings.builder().loadFromSource(indexSettings)
                         .build());
 
         // create a mapping
@@ -378,7 +383,7 @@ public class JaPluginTest {
                 + "}"//
                 + "}}}";
         runner.createIndex(index,
-                ImmutableSettings.builder().loadFromSource(indexSettings)
+                Settings.builder().loadFromSource(indexSettings)
                         .build());
 
         // create a mapping

@@ -13,7 +13,6 @@ import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner;
 import org.codelibs.elasticsearch.runner.net.Curl;
@@ -51,14 +50,15 @@ public class JaPluginTest {
             @Override
             public void build(final int number, final Builder settingsBuilder) {
                 settingsBuilder.put("http.cors.enabled", true);
+                settingsBuilder.put("http.cors.allow-origin", "*");
                 settingsBuilder.put("index.number_of_shards", 3);
                 settingsBuilder.put("index.number_of_replicas", 0);
                 settingsBuilder.putArray("discovery.zen.ping.unicast.hosts", "localhost:9301-9310");
-                settingsBuilder.put("plugin.types", "org.codelibs.elasticsearch.ja.JaPlugin,org.elasticsearch.plugin.analysis.kuromoji.AnalysisKuromojiPlugin");
-                settingsBuilder.put("index.unassigned.node_left.delayed_timeout","0");
+                settingsBuilder.put("plugin.types",
+                        "org.codelibs.elasticsearch.ja.JaPlugin,org.elasticsearch.plugin.analysis.kuromoji.AnalysisKuromojiPlugin");
+                settingsBuilder.put("index.unassigned.node_left.delayed_timeout", "0");
             }
-        }).build(newConfigs().clusterName(clusterName).numOfNode(numOfNode)
-                .clusterName(UUID.randomUUID().toString()));
+        }).build(newConfigs().clusterName(clusterName).numOfNode(numOfNode));
 
         userDictFiles = null;
     }

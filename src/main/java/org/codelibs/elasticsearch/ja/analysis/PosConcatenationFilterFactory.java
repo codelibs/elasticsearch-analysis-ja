@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.ja.tokenattributes.PartOfSpeechAttribute;
 import org.codelibs.analysis.ja.PosConcatenationFilter;
+import org.codelibs.analysis.ja.PosConcatenationFilter.PartOfSpeechSupplier;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.assistedinject.Assisted;
 import org.elasticsearch.common.settings.Settings;
@@ -32,6 +34,12 @@ public class PosConcatenationFilterFactory extends AbstractTokenFilterFactory {
 
     @Override
     public TokenStream create(TokenStream tokenStream) {
-        return new PosConcatenationFilter(tokenStream, posTags);
+        final PartOfSpeechAttribute posAtt = tokenStream.addAttribute(PartOfSpeechAttribute.class);
+        return new PosConcatenationFilter(tokenStream, posTags, new PartOfSpeechSupplier() {
+            @Override
+            public String get() {
+                return posAtt.getPartOfSpeech();
+            }
+        });
     }
 }

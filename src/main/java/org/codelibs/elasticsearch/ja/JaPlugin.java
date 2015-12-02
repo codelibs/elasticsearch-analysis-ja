@@ -39,7 +39,7 @@ public class JaPlugin extends Plugin {
                 NumberConcatenationFilterFactory.class);
         module.addTokenFilter("pattern_concat",
                 PatternConcatenationFilterFactory.class);
-        module.addTokenFilter("pos_concat",
+        module.addTokenFilter("kuromoji_pos_concat",
                 PosConcatenationFilterFactory.class);
     }
 

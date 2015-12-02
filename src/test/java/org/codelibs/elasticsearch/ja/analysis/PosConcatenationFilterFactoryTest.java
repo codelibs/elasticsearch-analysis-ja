@@ -3,6 +3,13 @@ package org.codelibs.elasticsearch.ja.analysis;
 import static org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner.newConfigs;
 import static org.junit.Assert.assertEquals;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 
@@ -16,11 +23,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PatternConcatenationFilterFactoryTest {
+public class PosConcatenationFilterFactoryTest {
 
     private ElasticsearchClusterRunner runner;
 
     private int numOfNode = 1;
+
+    private File[] numberSuffixFiles;
 
     private String clusterName;
 
@@ -40,16 +49,29 @@ public class PatternConcatenationFilterFactoryTest {
                 settingsBuilder.put("index.unassigned.node_left.delayed_timeout","0");
             }
         }).build(newConfigs().clusterName(clusterName).numOfNode(numOfNode));
+
+        numberSuffixFiles = null;
     }
 
     @After
     public void cleanUp() throws Exception {
         runner.close();
         runner.clean();
+        if (numberSuffixFiles != null) {
+            for (File file : numberSuffixFiles) {
+                file.deleteOnExit();
+            }
+        }
     }
 
     @Test
     public void test_basic() throws Exception {
+        numberSuffixFiles = new File[numOfNode];
+        for (int i = 0; i < numOfNode; i++) {
+            String confPath = runner.getNode(i).settings().get("path.conf");
+            numberSuffixFiles[i] = new File(confPath, "tags.txt");
+            updateDictionary(numberSuffixFiles[i], "名詞-形容動詞語幹\n名詞-サ変接続");
+        }
 
         runner.ensureYellow();
         Node node = runner.node();
@@ -58,11 +80,11 @@ public class PatternConcatenationFilterFactoryTest {
 
         final String indexSettings = "{\"index\":{\"analysis\":{"
                 + "\"filter\":{"
-                + "\"pattern_concat_filter\":{\"type\":\"pattern_concat\",\"pattern1\":\"昭和|平成\",\"pattern2\":\"[0-9]+年\"}"
+                + "\"tag_concat_filter\":{\"type\":\"kuromoji_pos_concat\",\"tags_path\":\"tags.txt\"}"
                 + "},"//
                 + "\"analyzer\":{"
-                + "\"ja_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\"},"
-                + "\"ja_concat_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\",\"filter\":[\"pattern_concat_filter\"]}"
+                + "\"ja_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"reloadable_kuromoji_tokenizer\"},"
+                + "\"ja_concat_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"reloadable_kuromoji_tokenizer\",\"filter\":[\"tag_concat_filter\"]}"
                 + "}"//
                 + "}}}";
         runner.createIndex(index,
@@ -70,7 +92,7 @@ public class PatternConcatenationFilterFactoryTest {
                         .build());
 
         {
-            String text = "平成 12年";
+            String text = "詳細設計";
             try (CurlResponse response = Curl
                     .post(node, "/" + index + "/_analyze")
                     .param("analyzer", "ja_concat_analyzer").body(text)
@@ -79,55 +101,18 @@ public class PatternConcatenationFilterFactoryTest {
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
                         .getContentAsMap().get("tokens");
                 assertEquals(1, tokens.size());
-                assertEquals("平成12年", tokens.get(0).get("token").toString());
-            }
-        }
-
-        {
-            String text = "aaa 昭和 3年 bbb";
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_concat_analyzer").body(text)
-                    .execute()) {
-                @SuppressWarnings("unchecked")
-                List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
-                assertEquals(3, tokens.size());
-                assertEquals("aaa", tokens.get(0).get("token").toString());
-                assertEquals("昭和3年", tokens.get(1).get("token").toString());
-                assertEquals("bbb", tokens.get(2).get("token").toString());
-            }
-        }
-
-        {
-            String text = "大正 10年";
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_concat_analyzer").body(text)
-                    .execute()) {
-                @SuppressWarnings("unchecked")
-                List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
-                assertEquals(2, tokens.size());
-                assertEquals("大正", tokens.get(0).get("token").toString());
-                assertEquals("10年", tokens.get(1).get("token").toString());
-            }
-        }
-
-        {
-            String text = "昭和 10";
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_concat_analyzer").body(text)
-                    .execute()) {
-                @SuppressWarnings("unchecked")
-                List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
-                assertEquals(2, tokens.size());
-                assertEquals("昭和", tokens.get(0).get("token").toString());
-                assertEquals("10", tokens.get(1).get("token").toString());
+                assertEquals("詳細設計", tokens.get(0).get("token").toString());
             }
         }
     }
 
+    private void updateDictionary(File file, String content)
+            throws IOException, UnsupportedEncodingException,
+            FileNotFoundException {
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(file), "UTF-8"))) {
+            bw.write(content);
+            bw.flush();
+        }
+    }
 }

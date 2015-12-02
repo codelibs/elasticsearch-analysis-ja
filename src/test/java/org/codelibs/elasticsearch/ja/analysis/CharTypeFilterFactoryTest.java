@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner;
 import org.codelibs.elasticsearch.runner.net.Curl;
@@ -40,8 +39,7 @@ public class CharTypeFilterFactoryTest {
                 settingsBuilder.put("plugin.types", "org.codelibs.elasticsearch.ja.JaPlugin");
                 settingsBuilder.put("index.unassigned.node_left.delayed_timeout","0");
             }
-        }).build(newConfigs().clusterName(clusterName).numOfNode(numOfNode)
-                .clusterName(UUID.randomUUID().toString()));
+        }).build(newConfigs().clusterName(clusterName).numOfNode(numOfNode));
 
     }
 

@@ -5,6 +5,7 @@ import org.codelibs.elasticsearch.ja.analysis.IterationMarkCharFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.KanjiNumberFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.NumberConcatenationFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.PatternConcatenationFilterFactory;
+import org.codelibs.elasticsearch.ja.analysis.PosConcatenationFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.ProlongedSoundMarkCharFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.ReloadableKuromojiTokenizerFactory;
 import org.codelibs.elasticsearch.ja.analysis.StopTokenPrefixFilterFactory;
@@ -35,6 +36,8 @@ public class JaPlugin extends Plugin {
                 ReloadableKuromojiTokenizerFactory.class);
 
         module.addTokenFilter("kanji_number", KanjiNumberFilterFactory.class);
+        module.addTokenFilter("kuromoji_pos_concat",
+                PosConcatenationFilterFactory.class);
         module.addTokenFilter("char_type", CharTypeFilterFactory.class);
         module.addTokenFilter("number_concat",
                 NumberConcatenationFilterFactory.class);

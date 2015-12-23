@@ -68,7 +68,7 @@ public class CharTypeFilterFactoryTest {
         runner.createIndex(index,
                 Settings.builder().loadFromSource(indexSettings)
                         .build());
-
+        runner.ensureYellow();
         {
             String text = "aaa aa1 aaあ aa! 111 11あ 11- あああ ああ- ---";
             try (CurlResponse response = Curl
@@ -106,6 +106,7 @@ public class CharTypeFilterFactoryTest {
         runner.createIndex(index,
                 Settings.builder().loadFromSource(indexSettings)
                         .build());
+        runner.ensureYellow();
 
         {
             String text = "aaa aa1 aaあ aa! 111 11あ 11- あああ ああ- ---";
@@ -144,6 +145,7 @@ public class CharTypeFilterFactoryTest {
         runner.createIndex(index,
                 Settings.builder().loadFromSource(indexSettings)
                         .build());
+        runner.ensureYellow();
 
         {
             String text = "aaa aa1 aaあ aa! 111 11あ 11- あああ ああ- ---";
@@ -185,6 +187,7 @@ public class CharTypeFilterFactoryTest {
         runner.createIndex(index,
                 Settings.builder().loadFromSource(indexSettings)
                         .build());
+        runner.ensureYellow();
 
         {
             String text = "aaa aa1 aaあ aa! 111 11あ 11- あああ ああ- ---";

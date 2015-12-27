@@ -1,11 +1,13 @@
 package org.codelibs.elasticsearch.ja;
 
 import org.codelibs.elasticsearch.ja.analysis.CharTypeFilterFactory;
+import org.codelibs.elasticsearch.ja.analysis.FlexiblePorterStemFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.IterationMarkCharFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.KanjiNumberFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.NumberConcatenationFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.PatternConcatenationFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.ProlongedSoundMarkCharFilterFactory;
+import org.codelibs.elasticsearch.ja.analysis.ReloadableKeywordMarkerFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.ReloadableKuromojiTokenizerFactory;
 import org.elasticsearch.index.analysis.AnalysisModule;
 import org.elasticsearch.plugins.AbstractPlugin;
@@ -38,6 +40,10 @@ public class JaPlugin extends AbstractPlugin {
                 NumberConcatenationFilterFactory.class);
         module.addTokenFilter("pattern_concat",
                 PatternConcatenationFilterFactory.class);
+        module.addTokenFilter("reloadable_keyword_marker",
+                ReloadableKeywordMarkerFilterFactory.class);
+        module.addTokenFilter("flexible_porter_stem",
+                FlexiblePorterStemFilterFactory.class);
     }
 
 }

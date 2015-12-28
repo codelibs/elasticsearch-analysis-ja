@@ -10,6 +10,7 @@ import org.codelibs.elasticsearch.ja.analysis.PosConcatenationFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.ProlongedSoundMarkCharFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.ReloadableKeywordMarkerFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.ReloadableKuromojiTokenizerFactory;
+import org.codelibs.elasticsearch.ja.analysis.ReloadableStopFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.StopTokenPrefixFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.StopTokenSuffixFilterFactory;
 import org.elasticsearch.index.analysis.AnalysisModule;
@@ -51,6 +52,8 @@ public class JaPlugin extends Plugin {
                 StopTokenSuffixFilterFactory.class);
         module.addTokenFilter("reloadable_keyword_marker",
                 ReloadableKeywordMarkerFilterFactory.class);
+        module.addTokenFilter("reloadable_stop",
+                ReloadableStopFilterFactory.class);
         module.addTokenFilter("flexible_porter_stem",
                 FlexiblePorterStemFilterFactory.class);
     }

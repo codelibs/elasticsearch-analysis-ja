@@ -90,6 +90,7 @@ public class NumberConcatenationFilterFactoryTest {
         runner.createIndex(index,
                 Settings.builder().loadFromSource(indexSettings)
                         .build());
+        runner.ensureYellow();
 
         {
             String text = "100 円";

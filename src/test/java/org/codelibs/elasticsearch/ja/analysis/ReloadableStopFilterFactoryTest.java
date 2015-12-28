@@ -23,13 +23,13 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class PosConcatenationFilterFactoryTest {
+public class ReloadableStopFilterFactoryTest {
 
     private ElasticsearchClusterRunner runner;
 
-    private int numOfNode = 1;
+    private int numOfNode = 3;
 
-    private File[] numberSuffixFiles;
+    private File[] stopwordFiles;
 
     private String clusterName;
 
@@ -46,19 +46,19 @@ public class PosConcatenationFilterFactoryTest {
                 settingsBuilder.put("index.number_of_replicas", 0);
                 settingsBuilder.putArray("discovery.zen.ping.unicast.hosts", "localhost:9301-9310");
                 settingsBuilder.put("plugin.types", "org.codelibs.elasticsearch.ja.JaPlugin");
-                settingsBuilder.put("index.unassigned.node_left.delayed_timeout","0");
+                settingsBuilder.put("index.unassigned.node_left.delayed_timeout", "0");
             }
         }).build(newConfigs().clusterName(clusterName).numOfNode(numOfNode));
 
-        numberSuffixFiles = null;
+        stopwordFiles = null;
     }
 
     @After
     public void cleanUp() throws Exception {
         runner.close();
         runner.clean();
-        if (numberSuffixFiles != null) {
-            for (File file : numberSuffixFiles) {
+        if (stopwordFiles != null) {
+            for (File file : stopwordFiles) {
                 file.deleteOnExit();
             }
         }
@@ -66,11 +66,11 @@ public class PosConcatenationFilterFactoryTest {
 
     @Test
     public void test_basic() throws Exception {
-        numberSuffixFiles = new File[numOfNode];
+        stopwordFiles = new File[numOfNode];
         for (int i = 0; i < numOfNode; i++) {
             String confPath = runner.getNode(i).settings().get("path.conf");
-            numberSuffixFiles[i] = new File(confPath, "tags.txt");
-            updateDictionary(numberSuffixFiles[i], "名詞-形容動詞語幹\n名詞-サ変接続");
+            stopwordFiles[i] = new File(confPath, "stopwords.txt");
+            updateDictionary(stopwordFiles[i], "aaa\nbbb");
         }
 
         runner.ensureYellow();
@@ -78,40 +78,48 @@ public class PosConcatenationFilterFactoryTest {
 
         final String index = "dataset";
 
-        final String indexSettings = "{\"index\":{\"analysis\":{"
-                + "\"filter\":{"
-                + "\"tag_concat_filter\":{\"type\":\"kuromoji_pos_concat\",\"tags_path\":\"tags.txt\"}"
-                + "},"//
-                + "\"analyzer\":{"
-                + "\"ja_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"reloadable_kuromoji_tokenizer\"},"
-                + "\"ja_concat_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"reloadable_kuromoji_tokenizer\",\"filter\":[\"tag_concat_filter\"]}"
-                + "}"//
+        final String indexSettings = "{\"index\":{\"analysis\":{" + "\"filter\":{"
+                + "\"stop_filter\":{\"type\":\"reloadable_stop\",\"stopwords_path\":\"stopwords.txt\",\"reload_interval\":\"1s\"}" + "},"//
+                + "\"analyzer\":{" + "\"default_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\"},"
+                + "\"stop_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\",\"filter\":[\"stop_filter\"]}" + "}"//
                 + "}}}";
-        runner.createIndex(index,
-                Settings.builder().loadFromSource(indexSettings)
-                        .build());
+        runner.createIndex(index, Settings.builder().loadFromSource(indexSettings).build());
         runner.ensureYellow();
 
         {
-            String text = "詳細設計";
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_concat_analyzer").body(text)
-                    .execute()) {
+            String text = "aaa bbb ccc";
+            try (CurlResponse response =
+                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "stop_analyzer").body(text).execute()) {
                 @SuppressWarnings("unchecked")
-                List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
+                List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
                 assertEquals(1, tokens.size());
-                assertEquals("詳細設計", tokens.get(0).get("token").toString());
+                assertEquals("ccc", tokens.get(0).get("token").toString());
             }
         }
+
+        for (int i = 0; i < numOfNode; i++) {
+            String confPath = runner.getNode(i).settings().get("path.conf");
+            stopwordFiles[i] = new File(confPath, "stopwords.txt");
+            updateDictionary(stopwordFiles[i], "bbb\nccc");
+        }
+
+        Thread.sleep(1100);
+
+        {
+            String text = "aaa bbb ccc";
+            try (CurlResponse response =
+                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "stop_analyzer").body(text).execute()) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
+                assertEquals(1, tokens.size());
+                assertEquals("aaa", tokens.get(0).get("token").toString());
+            }
+        }
+
     }
 
-    private void updateDictionary(File file, String content)
-            throws IOException, UnsupportedEncodingException,
-            FileNotFoundException {
-        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(file), "UTF-8"))) {
+    private void updateDictionary(File file, String content) throws IOException, UnsupportedEncodingException, FileNotFoundException {
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8"))) {
             bw.write(content);
             bw.flush();
         }

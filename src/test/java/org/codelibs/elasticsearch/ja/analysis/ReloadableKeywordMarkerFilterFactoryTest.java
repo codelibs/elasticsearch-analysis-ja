@@ -87,6 +87,7 @@ public class ReloadableKeywordMarkerFilterFactoryTest {
                 + "}"//
                 + "}}}";
         runner.createIndex(index, Settings.builder().loadFromSource(indexSettings).build());
+        runner.ensureYellow();
 
         {
             String text = "consist consisted consistency consistent consistently consisting consists";

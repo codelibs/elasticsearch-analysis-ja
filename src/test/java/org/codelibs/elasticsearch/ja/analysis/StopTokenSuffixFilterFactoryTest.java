@@ -63,6 +63,7 @@ public class StopTokenSuffixFilterFactoryTest {
                 + "}"//
                 + "}}}";
         runner.createIndex(index, Settings.builder().loadFromSource(indexSettings).build());
+        runner.ensureYellow();
 
         {
             String text = "aaa bbb ccc ddd eee";

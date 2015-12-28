@@ -61,6 +61,7 @@ public class PatternConcatenationFilterFactoryTest {
         runner.createIndex(index,
                 ImmutableSettings.builder().loadFromSource(indexSettings)
                         .build());
+        runner.ensureYellow();
 
         {
             String text = "平成 12年";

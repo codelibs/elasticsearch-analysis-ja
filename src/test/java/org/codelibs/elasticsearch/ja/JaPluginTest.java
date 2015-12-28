@@ -105,6 +105,7 @@ public class JaPluginTest {
         runner.createIndex(index,
                 ImmutableSettings.builder().loadFromSource(indexSettings)
                         .build());
+        runner.ensureYellow();
 
         // create a mapping
         final XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()//
@@ -226,6 +227,7 @@ public class JaPluginTest {
         runner.createIndex(index,
                 ImmutableSettings.builder().loadFromSource(indexSettings)
                         .build());
+        runner.ensureYellow();
 
         // create a mapping
         final XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()//
@@ -300,6 +302,7 @@ public class JaPluginTest {
         runner.createIndex(index,
                 ImmutableSettings.builder().loadFromSource(indexSettings)
                         .build());
+        runner.ensureYellow();
 
         // create a mapping
         final XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()//
@@ -377,6 +380,7 @@ public class JaPluginTest {
         runner.createIndex(index,
                 ImmutableSettings.builder().loadFromSource(indexSettings)
                         .build());
+        runner.ensureYellow();
 
         // create a mapping
         final XContentBuilder mappingBuilder = XContentFactory.jsonBuilder()//

@@ -56,6 +56,7 @@ public class FlexiblePorterStemFilterFactoryTest {
                 + "\"stem1_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\",\"filter\":[\"stem1_filter\"]}" + "}"//
                 + "}}}";
         runner.createIndex(index, ImmutableSettings.builder().loadFromSource(indexSettings).build());
+        runner.ensureYellow();
 
         {
             String text = "consist consisted consistency consistent consistently consisting consists";

@@ -6,7 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.codelibs.analysis.en.ReloadableKeywordMarkerFilter;
+import org.codelibs.analysis.en.ReloadableStopFilter;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.assistedinject.Assisted;
 import org.elasticsearch.common.settings.Settings;
@@ -14,40 +14,42 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.Index;
 import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;
-import org.elasticsearch.index.settings.IndexSettings;
+import org.elasticsearch.index.settings.IndexSettingsService;
 
-public class ReloadableKeywordMarkerFilterFactory extends AbstractTokenFilterFactory {
+public class ReloadableStopFilterFactory extends AbstractTokenFilterFactory {
 
-    private final Path keywordPath;
+    private final Path stopwordPath;
 
     private final long reloadInterval;
 
-    @Inject
-    public ReloadableKeywordMarkerFilterFactory(Index index, @IndexSettings Settings indexSettings, final Environment env,
-            @Assisted String name, @Assisted Settings settings) {
-        super(index, indexSettings, name, settings);
+    private final boolean ignoreCase;
 
-        final String path = settings.get("keywords_path");
+    @Inject
+    public ReloadableStopFilterFactory(Index index, final IndexSettingsService indexSettingsService, final Environment env,
+            @Assisted String name, @Assisted Settings settings) {
+        super(index, indexSettingsService.getSettings(), name, settings);
+
+        final String path = settings.get("stopwords_path");
         if (path != null) {
             URL url = env.resolveConfig(path);
             try {
-                keywordPath = Paths.get(url.toURI());
+                stopwordPath = Paths.get(url.toURI());
             } catch (URISyntaxException e) {
-                throw new IllegalArgumentException("keywords_path is invalid.", e);
+                throw new IllegalArgumentException("stopwords_path is invalid.", e);
             }
         } else {
-            keywordPath = null;
+            stopwordPath = null;
         }
-
+        ignoreCase = settings.getAsBoolean("ignore_case", false);
         reloadInterval = settings.getAsTime("reload_interval", TimeValue.timeValueMinutes(1)).getMillis();
     }
 
     @Override
     public TokenStream create(TokenStream tokenStream) {
-        if (keywordPath == null) {
+        if (stopwordPath == null) {
             return tokenStream;
         }
-        return new ReloadableKeywordMarkerFilter(tokenStream, keywordPath, reloadInterval);
+        return new ReloadableStopFilter(tokenStream, stopwordPath, ignoreCase, reloadInterval);
     }
 
 }

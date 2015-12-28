@@ -23,16 +23,19 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ReloadableKeywordMarkerFilterFactoryTest {
+public class ReloadableStopFilterFactoryTest {
 
     private ElasticsearchClusterRunner runner;
 
     private int numOfNode = 3;
 
-    private File[] keywordFiles;
+    private File[] stopwordFiles;
+
+    private String clusterName;
 
     @Before
     public void setUp() throws Exception {
+        clusterName = "es-analysisja-" + System.currentTimeMillis();
         runner = new ElasticsearchClusterRunner();
         runner.onBuild(new ElasticsearchClusterRunner.Builder() {
             @Override
@@ -41,17 +44,17 @@ public class ReloadableKeywordMarkerFilterFactoryTest {
                 settingsBuilder.put("index.number_of_replicas", 0);
                 settingsBuilder.put("index.number_of_shards", 3);
             }
-        }).build(newConfigs().ramIndexStore().numOfNode(numOfNode));
+        }).build(newConfigs().clusterName(clusterName).numOfNode(numOfNode));
 
-        keywordFiles = null;
+        stopwordFiles = null;
     }
 
     @After
     public void cleanUp() throws Exception {
         runner.close();
         runner.clean();
-        if (keywordFiles != null) {
-            for (File file : keywordFiles) {
+        if (stopwordFiles != null) {
+            for (File file : stopwordFiles) {
                 file.deleteOnExit();
             }
         }
@@ -59,11 +62,11 @@ public class ReloadableKeywordMarkerFilterFactoryTest {
 
     @Test
     public void test_basic() throws Exception {
-        keywordFiles = new File[numOfNode];
+        stopwordFiles = new File[numOfNode];
         for (int i = 0; i < numOfNode; i++) {
             String confPath = runner.getNode(i).settings().get("path.conf");
-            keywordFiles[i] = new File(confPath, "keywords.txt");
-            updateDictionary(keywordFiles[i], "consisted\nconsists");
+            stopwordFiles[i] = new File(confPath, "stopwords.txt");
+            updateDictionary(stopwordFiles[i], "aaa\nbbb");
         }
 
         runner.ensureYellow();
@@ -72,55 +75,40 @@ public class ReloadableKeywordMarkerFilterFactoryTest {
         final String index = "dataset";
 
         final String indexSettings = "{\"index\":{\"analysis\":{" + "\"filter\":{"
-                + "\"stem1_filter\":{\"type\":\"flexible_porter_stem\",\"step1\":true,\"step2\":false,\"step3\":false,\"step4\":false,\"step5\":false,\"step6\":false},"
-                + "\"marker_filter\":{\"type\":\"reloadable_keyword_marker\",\"keywords_path\":\"keywords.txt\",\"reload_interval\":\"1s\"}"
-                + "},"//
+                + "\"stop_filter\":{\"type\":\"reloadable_stop\",\"stopwords_path\":\"stopwords.txt\",\"reload_interval\":\"1s\"}" + "},"//
                 + "\"analyzer\":{" + "\"default_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\"},"
-                + "\"stem1_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\",\"filter\":[\"marker_filter\",\"stem1_filter\"]}"
-                + "}"//
+                + "\"stop_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\",\"filter\":[\"stop_filter\"]}" + "}"//
                 + "}}}";
         runner.createIndex(index, ImmutableSettings.builder().loadFromSource(indexSettings).build());
         runner.ensureYellow();
 
         {
-            String text = "consist consisted consistency consistent consistently consisting consists";
+            String text = "aaa bbb ccc";
             try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "stem1_analyzer").body(text).execute()) {
+                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "stop_analyzer").body(text).execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
-                assertEquals(7, tokens.size());
-                assertEquals("consist", tokens.get(0).get("token").toString());
-                assertEquals("consisted", tokens.get(1).get("token").toString());
-                assertEquals("consistency", tokens.get(2).get("token").toString());
-                assertEquals("consistent", tokens.get(3).get("token").toString());
-                assertEquals("consistently", tokens.get(4).get("token").toString());
-                assertEquals("consist", tokens.get(5).get("token").toString());
-                assertEquals("consists", tokens.get(6).get("token").toString());
+                assertEquals(1, tokens.size());
+                assertEquals("ccc", tokens.get(0).get("token").toString());
             }
         }
 
         for (int i = 0; i < numOfNode; i++) {
             String confPath = runner.getNode(i).settings().get("path.conf");
-            keywordFiles[i] = new File(confPath, "keywords.txt");
-            updateDictionary(keywordFiles[i], "consisting\nconsistent");
+            stopwordFiles[i] = new File(confPath, "stopwords.txt");
+            updateDictionary(stopwordFiles[i], "bbb\nccc");
         }
 
         Thread.sleep(1100);
 
         {
-            String text = "consist consisted consistency consistent consistently consisting consists";
+            String text = "aaa bbb ccc";
             try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "stem1_analyzer").body(text).execute()) {
+                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "stop_analyzer").body(text).execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
-                assertEquals(7, tokens.size());
-                assertEquals("consist", tokens.get(0).get("token").toString());
-                assertEquals("consist", tokens.get(1).get("token").toString());
-                assertEquals("consistency", tokens.get(2).get("token").toString());
-                assertEquals("consistent", tokens.get(3).get("token").toString());
-                assertEquals("consistently", tokens.get(4).get("token").toString());
-                assertEquals("consisting", tokens.get(5).get("token").toString());
-                assertEquals("consist", tokens.get(6).get("token").toString());
+                assertEquals(1, tokens.size());
+                assertEquals("aaa", tokens.get(0).get("token").toString());
             }
         }
 

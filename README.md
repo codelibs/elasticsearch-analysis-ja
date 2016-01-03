@@ -9,7 +9,9 @@ Elasticsearch Analysis Ja Plugin provides Tokenizer/CharFilter/TokenFilter for J
 
 | Version   | elasticsearch |
 |:---------:|:-------------:|
-| master    | 1.5.X         |
+| master    | 2.1.X         |
+| 2.1.0     | 2.1.1         |
+| 1.7.0     | 1.7.4         |
 | 1.5.1     | 1.5.2         |
 | 1.4.0     | 1.4.4         |
 
@@ -20,7 +22,7 @@ Please file an [issue](https://github.com/codelibs/elasticsearch-analysis-ja/iss
 
 ## Installation
 
-    $ $ES_HOME/bin/plugin --install org.codelibs/elasticsearch-analysis-ja/1.5.1
+    $ $ES_HOME/bin/plugin install org.codelibs/elasticsearch-analysis-ja/2.1.0
 
 ## References
 

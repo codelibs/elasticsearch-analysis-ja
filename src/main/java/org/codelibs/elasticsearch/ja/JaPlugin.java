@@ -1,5 +1,6 @@
 package org.codelibs.elasticsearch.ja;
 
+import org.codelibs.elasticsearch.ja.analysis.AlphaNumWordFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.CharTypeFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.FlexiblePorterStemFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.IterationMarkCharFilterFactory;
@@ -56,6 +57,8 @@ public class JaPlugin extends Plugin {
                 ReloadableStopFilterFactory.class);
         module.addTokenFilter("flexible_porter_stem",
                 FlexiblePorterStemFilterFactory.class);
+        module.addTokenFilter("alphanum_word",
+                AlphaNumWordFilterFactory.class);
     }
 
 }

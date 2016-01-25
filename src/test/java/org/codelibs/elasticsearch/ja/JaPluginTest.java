@@ -106,8 +106,8 @@ public class JaPluginTest {
                 + "\"kuromoji_user_dict_reload\":{\"type\":\"reloadable_kuromoji\",\"mode\":\"extended\",\"user_dictionary\":\"userdict_ja.txt\",\"reload_interval\":\"1s\"}"
                 + "},"//
                 + "\"analyzer\":{"
-                + "\"ja_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"kuromoji_user_dict\",\"filter\":[\"kuromoji_stemmer\"]},"
-                + "\"ja_reload_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"kuromoji_user_dict_reload\",\"filter\":[\"kuromoji_stemmer\"]}"
+                + "\"ja_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"kuromoji_user_dict\",\"filter\":[\"reloadable_kuromoji_stemmer\"]},"
+                + "\"ja_reload_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"kuromoji_user_dict_reload\",\"filter\":[\"reloadable_kuromoji_stemmer\"]}"
                 + "}"//
                 + "}}}";
         runner.createIndex(index,

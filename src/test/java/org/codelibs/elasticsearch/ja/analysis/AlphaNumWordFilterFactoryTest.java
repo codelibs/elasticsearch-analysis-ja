@@ -135,4 +135,90 @@ public class AlphaNumWordFilterFactoryTest {
 
     }
 
+    @Test
+    public void test_maxTokenLength() throws Exception {
+
+        runner.ensureYellow();
+        Node node = runner.node();
+
+        final String index = "dataset";
+
+        final String indexSettings = "{\"index\":{\"analysis\":{" //
+                + "\"filter\":{" //
+                + "\"alphanum_word_filter\":{\"type\":\"alphanum_word\",\"max_token_length\":2}" + "}," //
+                + "\"tokenizer\":{" //
+                + "\"unigram_analyzer\":{\"type\":\"nGram\",\"min_gram\":\"1\",\"max_gram\":\"1\",\"token_chars\":[\"letter\",\"digit\"]}"
+                + "},"//
+                + "\"analyzer\":{" //
+                + "\"ngram_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"unigram_analyzer\"},"
+                + "\"ngram_word_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"unigram_analyzer\",\"filter\":[\"alphanum_word_filter\"]}"
+                + "}"//
+                + "}}}";
+        runner.createIndex(index, Settings.builder().loadFromSource(indexSettings).build());
+        runner.ensureYellow();
+
+        {
+            String text = "aaa";
+            try (CurlResponse response =
+                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ngram_word_analyzer").body(text).execute()) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
+                assertEquals(1, tokens.size());
+                assertEquals("aa", tokens.get(0).get("token").toString());
+            }
+        }
+
+        {
+            String text = "aaa bbb";
+            try (CurlResponse response =
+                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ngram_word_analyzer").body(text).execute()) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
+                assertEquals(2, tokens.size());
+                assertEquals("aa", tokens.get(0).get("token").toString());
+                assertEquals("bb", tokens.get(1).get("token").toString());
+            }
+        }
+
+        {
+            String text = "aa1 bb2 333";
+            try (CurlResponse response =
+                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ngram_word_analyzer").body(text).execute()) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
+                assertEquals(3, tokens.size());
+                assertEquals("aa", tokens.get(0).get("token").toString());
+                assertEquals("bb", tokens.get(1).get("token").toString());
+                assertEquals("33", tokens.get(2).get("token").toString());
+            }
+        }
+
+        {
+            String text = "aaa亜aaa";
+            try (CurlResponse response =
+                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ngram_word_analyzer").body(text).execute()) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
+                assertEquals(3, tokens.size());
+                assertEquals("aa", tokens.get(0).get("token").toString());
+                assertEquals("亜", tokens.get(1).get("token").toString());
+                assertEquals("aa", tokens.get(2).get("token").toString());
+            }
+        }
+
+        {
+            String text = "嬉しい";
+            try (CurlResponse response =
+                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ngram_word_analyzer").body(text).execute()) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
+                assertEquals(3, tokens.size());
+                assertEquals("嬉", tokens.get(0).get("token").toString());
+                assertEquals("し", tokens.get(1).get("token").toString());
+                assertEquals("い", tokens.get(2).get("token").toString());
+            }
+        }
+
+    }
+
 }

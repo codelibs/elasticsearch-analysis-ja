@@ -11,14 +11,20 @@ import org.elasticsearch.index.settings.IndexSettingsService;
 
 public class AlphaNumWordFilterFactory extends AbstractTokenFilterFactory {
 
+    private final int maxTokenLength;
+
     @Inject
     public AlphaNumWordFilterFactory(Index index, IndexSettingsService indexSettingsService, @Assisted String name,
             @Assisted Settings settings) {
         super(index, indexSettingsService.getSettings(), name, settings);
+
+        maxTokenLength = settings.getAsInt("max_token_length", AlphaNumWordFilter.DEFAULT_MAX_TOKEN_LENGTH);
     }
 
     @Override
     public TokenStream create(TokenStream tokenStream) {
-        return new AlphaNumWordFilter(tokenStream);
+        AlphaNumWordFilter alphaNumWordFilter = new AlphaNumWordFilter(tokenStream);
+        alphaNumWordFilter.setMaxTokenLength(maxTokenLength);
+        return alphaNumWordFilter;
     }
 }

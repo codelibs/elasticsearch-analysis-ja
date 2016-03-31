@@ -24,6 +24,7 @@
 			<useTransitiveFiltering>true</useTransitiveFiltering>
 			<excludes>
 				<exclude>org.elasticsearch:elasticsearch</exclude>
+				<exclude>org.elasticsearch.plugin:analysis-kuromoji</exclude>
 				<exclude>org.apache.lucene:lucene-core</exclude>
 				<exclude>org.apache.lucene:lucene-analyzers-common</exclude>
 			</excludes>

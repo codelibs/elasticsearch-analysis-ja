@@ -2,7 +2,6 @@ package org.codelibs.elasticsearch.ja;
 
 import static org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner.newConfigs;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,9 +22,9 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.settings.Settings.Builder;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
-import org.elasticsearch.index.query.MatchQueryBuilder.Type;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
+import org.elasticsearch.rest.RestStatus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,14 +50,11 @@ public class JaPluginTest {
             public void build(final int number, final Builder settingsBuilder) {
                 settingsBuilder.put("http.cors.enabled", true);
                 settingsBuilder.put("http.cors.allow-origin", "*");
-                settingsBuilder.put("index.number_of_shards", 3);
-                settingsBuilder.put("index.number_of_replicas", 0);
                 settingsBuilder.putArray("discovery.zen.ping.unicast.hosts", "localhost:9301-9310");
-                settingsBuilder.put("plugin.types",
-                        "org.codelibs.elasticsearch.ja.JaPlugin,org.elasticsearch.plugin.analysis.kuromoji.AnalysisKuromojiPlugin");
-                settingsBuilder.put("index.unassigned.node_left.delayed_timeout", "0");
             }
-        }).build(newConfigs().clusterName(clusterName).numOfNode(numOfNode));
+        }).build(newConfigs().clusterName(clusterName).numOfNode(numOfNode)
+                .pluginTypes("org.codelibs.elasticsearch.ja.JaPlugin,"
+                        + "org.codelibs.elasticsearch.ja.kuromoji.plugin.analysis.kuromoji.AnalysisKuromojiPlugin"));
 
         userDictFiles = null;
     }
@@ -146,7 +142,7 @@ public class JaPluginTest {
 
         final IndexResponse indexResponse1 = runner.insert(index, type, "1",
                 "{\"msg1\":\"東京スカイツリー\", \"msg2\":\"東京スカイツリー\", \"id\":\"1\"}");
-        assertTrue(indexResponse1.isCreated());
+        assertEquals(RestStatus.CREATED, indexResponse1.status());
         runner.refresh();
 
         for (int i = 0; i < 1000; i++) {
@@ -187,7 +183,7 @@ public class JaPluginTest {
 
         final IndexResponse indexResponse2 = runner.insert(index, type, "2",
                 "{\"msg1\":\"東京スカイツリー\", \"msg2\":\"東京スカイツリー\", \"id\":\"2\"}");
-        assertTrue(indexResponse2.isCreated());
+        assertEquals(RestStatus.CREATED, indexResponse2.status());
         runner.refresh();
 
         for (int i = 0; i < 1000; i++) {
@@ -268,7 +264,7 @@ public class JaPluginTest {
 
         final IndexResponse indexResponse1 = runner.insert(index, type, "1",
                 "{\"msg1\":\"時々\", \"msg2\":\"時々\", \"id\":\"1\"}");
-        assertTrue(indexResponse1.isCreated());
+        assertEquals(RestStatus.CREATED, indexResponse1.status());
         runner.refresh();
 
         String[] inputs = new String[] { "こゝ ここ", "バナヽ バナナ", "学問のすゝめ 学問のすすめ",
@@ -343,7 +339,7 @@ public class JaPluginTest {
 
         final IndexResponse indexResponse1 = runner.insert(index, type, "1",
                 "{\"msg1\":\"あ‐\", \"msg2\":\"あ‐\", \"id\":\"1\"}");
-        assertTrue(indexResponse1.isCreated());
+        assertEquals(RestStatus.CREATED, indexResponse1.status());
         runner.refresh();
 
         String[] psms = new String[] { "\u002d", "\uff0d", "\u2010", "\u2011",
@@ -421,7 +417,7 @@ public class JaPluginTest {
 
         final IndexResponse indexResponse1 = runner.insert(index, type, "1",
                 "{\"msg1\":\"十二時間\", \"msg2\":\"十二時間\", \"id\":\"1\"}");
-        assertTrue(indexResponse1.isCreated());
+        assertEquals(RestStatus.CREATED, indexResponse1.status());
         runner.refresh();
 
         assertDocCount(1, index, type, "msg1", "十二時間");
@@ -443,7 +439,7 @@ public class JaPluginTest {
     private void assertDocCount(int expected, final String index,
             final String type, final String field, final String value) {
         final SearchResponse searchResponse = runner.search(index, type,
-                QueryBuilders.matchQuery(field, value).type(Type.PHRASE), null,
+                QueryBuilders.matchPhraseQuery(field, value), null,
                 0, numOfDocs);
         assertEquals(expected, searchResponse.getHits().getTotalHits());
     }

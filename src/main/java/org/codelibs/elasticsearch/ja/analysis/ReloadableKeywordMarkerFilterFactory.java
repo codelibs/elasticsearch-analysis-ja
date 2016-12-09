@@ -4,14 +4,11 @@ import java.nio.file.Path;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.codelibs.analysis.en.ReloadableKeywordMarkerFilter;
-import org.elasticsearch.common.inject.Inject;
-import org.elasticsearch.common.inject.assistedinject.Assisted;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.env.Environment;
-import org.elasticsearch.index.Index;
+import org.elasticsearch.index.IndexSettings;
 import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;
-import org.elasticsearch.index.settings.IndexSettingsService;
 
 public class ReloadableKeywordMarkerFilterFactory extends AbstractTokenFilterFactory {
 
@@ -19,14 +16,12 @@ public class ReloadableKeywordMarkerFilterFactory extends AbstractTokenFilterFac
 
     private final long reloadInterval;
 
-    @Inject
-    public ReloadableKeywordMarkerFilterFactory(Index index, final IndexSettingsService indexSettingsService, final Environment env,
-            @Assisted String name, @Assisted Settings settings) {
-        super(index, indexSettingsService.getSettings(), name, settings);
+    public ReloadableKeywordMarkerFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+        super(indexSettings, name, settings);
 
         final String path = settings.get("keywords_path");
         if (path != null) {
-            keywordPath = env.configFile().resolve(path);
+            keywordPath = environment.configFile().resolve(path);
         } else {
             keywordPath = null;
         }

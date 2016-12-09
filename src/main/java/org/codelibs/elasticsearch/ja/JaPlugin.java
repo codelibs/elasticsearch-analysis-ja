@@ -1,5 +1,8 @@
 package org.codelibs.elasticsearch.ja;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.codelibs.elasticsearch.ja.analysis.AlphaNumWordFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.CharTypeFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.FlexiblePorterStemFilterFactory;
@@ -19,43 +22,51 @@ import org.codelibs.elasticsearch.ja.analysis.ReloadableKuromojiTokenizerFactory
 import org.codelibs.elasticsearch.ja.analysis.ReloadableStopFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.StopTokenPrefixFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.StopTokenSuffixFilterFactory;
-import org.elasticsearch.index.analysis.AnalysisModule;
+import org.elasticsearch.index.analysis.CharFilterFactory;
+import org.elasticsearch.index.analysis.TokenFilterFactory;
+import org.elasticsearch.index.analysis.TokenizerFactory;
+import org.elasticsearch.indices.analysis.AnalysisModule.AnalysisProvider;
+import org.elasticsearch.plugins.AnalysisPlugin;
 import org.elasticsearch.plugins.Plugin;
 
-public class JaPlugin extends Plugin {
+public class JaPlugin extends Plugin implements AnalysisPlugin {
+
     @Override
-    public String name() {
-        return "analysis-ja";
+    public Map<String, AnalysisProvider<CharFilterFactory>> getCharFilters() {
+        Map<String, AnalysisProvider<CharFilterFactory>> extra = new HashMap<>();
+        extra.put("iteration_mark", IterationMarkCharFilterFactory::new);
+        extra.put("prolonged_sound_mark", ProlongedSoundMarkCharFilterFactory::new);
+        extra.put("reloadable_kuromoji_iteration_mark", KuromojiIterationMarkCharFilterFactory::new);
+        return extra;
     }
 
     @Override
-    public String description() {
-        return "This plugin provides analysis library for Japanese.";
+    public Map<String, AnalysisProvider<TokenFilterFactory>> getTokenFilters() {
+        Map<String, AnalysisProvider<TokenFilterFactory>> extra = new HashMap<>();
+        extra.put("reloadable_kuromoji_baseform", KuromojiBaseFormFilterFactory::new);
+        extra.put("reloadable_kuromoji_part_of_speech", KuromojiPartOfSpeechFilterFactory::new);
+        extra.put("reloadable_kuromoji_readingform", KuromojiReadingFormFilterFactory::new);
+        extra.put("reloadable_kuromoji_stemmer", KuromojiKatakanaStemmerFactory::new);
+        extra.put("kanji_number", KanjiNumberFilterFactory::new);
+        extra.put("kuromoji_pos_concat", PosConcatenationFilterFactory::new);
+        extra.put("char_type", CharTypeFilterFactory::new);
+        extra.put("number_concat", NumberConcatenationFilterFactory::new);
+        extra.put("pattern_concat", PatternConcatenationFilterFactory::new);
+        extra.put("stop_prefix", StopTokenPrefixFilterFactory::new);
+        extra.put("stop_suffix", StopTokenSuffixFilterFactory::new);
+        extra.put("reloadable_keyword_marker", ReloadableKeywordMarkerFilterFactory::new);
+        extra.put("reloadable_stop", ReloadableStopFilterFactory::new);
+        extra.put("flexible_porter_stem", FlexiblePorterStemFilterFactory::new);
+        extra.put("alphanum_word", AlphaNumWordFilterFactory::new);
+        return extra;
     }
 
-    public void onModule(AnalysisModule module) {
-        module.addCharFilter("iteration_mark", IterationMarkCharFilterFactory.class);
-        module.addCharFilter("prolonged_sound_mark", ProlongedSoundMarkCharFilterFactory.class);
-        module.addCharFilter("reloadable_kuromoji_iteration_mark", KuromojiIterationMarkCharFilterFactory.class);
-
-        module.addTokenizer("reloadable_kuromoji_tokenizer", ReloadableKuromojiTokenizerFactory.class);
-        module.addTokenizer("reloadable_kuromoji", ReloadableKuromojiTokenizerFactory.class);
-
-        module.addTokenFilter("reloadable_kuromoji_baseform", KuromojiBaseFormFilterFactory.class);
-        module.addTokenFilter("reloadable_kuromoji_part_of_speech", KuromojiPartOfSpeechFilterFactory.class);
-        module.addTokenFilter("reloadable_kuromoji_readingform", KuromojiReadingFormFilterFactory.class);
-        module.addTokenFilter("reloadable_kuromoji_stemmer", KuromojiKatakanaStemmerFactory.class);
-        module.addTokenFilter("kanji_number", KanjiNumberFilterFactory.class);
-        module.addTokenFilter("kuromoji_pos_concat", PosConcatenationFilterFactory.class);
-        module.addTokenFilter("char_type", CharTypeFilterFactory.class);
-        module.addTokenFilter("number_concat", NumberConcatenationFilterFactory.class);
-        module.addTokenFilter("pattern_concat", PatternConcatenationFilterFactory.class);
-        module.addTokenFilter("stop_prefix", StopTokenPrefixFilterFactory.class);
-        module.addTokenFilter("stop_suffix", StopTokenSuffixFilterFactory.class);
-        module.addTokenFilter("reloadable_keyword_marker", ReloadableKeywordMarkerFilterFactory.class);
-        module.addTokenFilter("reloadable_stop", ReloadableStopFilterFactory.class);
-        module.addTokenFilter("flexible_porter_stem", FlexiblePorterStemFilterFactory.class);
-        module.addTokenFilter("alphanum_word", AlphaNumWordFilterFactory.class);
+    @Override
+    public Map<String, AnalysisProvider<TokenizerFactory>> getTokenizers() {
+        Map<String, AnalysisProvider<TokenizerFactory>> extra = new HashMap<>();
+        extra.put("reloadable_kuromoji_tokenizer", ReloadableKuromojiTokenizerFactory::new);
+        extra.put("reloadable_kuromoji", ReloadableKuromojiTokenizerFactory::new);
+        return extra;
     }
 
 }

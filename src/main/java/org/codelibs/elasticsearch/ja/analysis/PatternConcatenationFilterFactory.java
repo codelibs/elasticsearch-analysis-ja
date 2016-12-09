@@ -4,26 +4,19 @@ import java.util.regex.Pattern;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.codelibs.analysis.ja.PatternConcatenationFilter;
-import org.elasticsearch.common.inject.Inject;
-import org.elasticsearch.common.inject.assistedinject.Assisted;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
-import org.elasticsearch.index.Index;
+import org.elasticsearch.index.IndexSettings;
 import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;
-import org.elasticsearch.index.settings.IndexSettingsService;
 
-public class PatternConcatenationFilterFactory extends
-        AbstractTokenFilterFactory {
+public class PatternConcatenationFilterFactory extends AbstractTokenFilterFactory {
 
     private Pattern pattern1;
 
     private Pattern pattern2;
 
-    @Inject
-    public PatternConcatenationFilterFactory(Index index,
-            IndexSettingsService indexSettingsService, @Assisted String name,
-            @Assisted Settings settings, Environment env) {
-        super(index, indexSettingsService.getSettings(), name, settings);
+    public PatternConcatenationFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+        super(indexSettings, name, settings);
 
         String pattern1Str = settings.get("pattern1");
         String pattern2Str = settings.get("pattern2", ".*");

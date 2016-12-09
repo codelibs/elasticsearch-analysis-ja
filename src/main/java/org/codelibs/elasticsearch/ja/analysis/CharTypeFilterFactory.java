@@ -2,12 +2,10 @@ package org.codelibs.elasticsearch.ja.analysis;
 
 import org.apache.lucene.analysis.TokenStream;
 import org.codelibs.analysis.ja.CharTypeFilter;
-import org.elasticsearch.common.inject.Inject;
-import org.elasticsearch.common.inject.assistedinject.Assisted;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.index.Index;
+import org.elasticsearch.env.Environment;
+import org.elasticsearch.index.IndexSettings;
 import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;
-import org.elasticsearch.index.settings.IndexSettingsService;
 
 public class CharTypeFilterFactory extends AbstractTokenFilterFactory {
 
@@ -17,11 +15,8 @@ public class CharTypeFilterFactory extends AbstractTokenFilterFactory {
 
     private final boolean letter;
 
-    @Inject
-    public CharTypeFilterFactory(Index index,
-            IndexSettingsService indexSettingsService, @Assisted String name,
-            @Assisted Settings settings) {
-        super(index, indexSettingsService.getSettings(), name, settings);
+    public CharTypeFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+        super(indexSettings, name, settings);
 
         alphabetic = settings.getAsBoolean("alphabetic", true);
         digit = settings.getAsBoolean("digit", true);

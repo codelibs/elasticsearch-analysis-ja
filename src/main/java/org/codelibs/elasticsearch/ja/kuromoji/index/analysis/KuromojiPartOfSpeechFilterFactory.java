@@ -17,7 +17,7 @@
  * under the License.
  */
 
-package org.codelibs.elasticsearch.ja.analysis;
+package org.codelibs.elasticsearch.ja.kuromoji.index.analysis;
 
 import java.util.HashSet;
 import java.util.List;
@@ -35,9 +35,9 @@ public class KuromojiPartOfSpeechFilterFactory extends AbstractTokenFilterFactor
 
     private final Set<String> stopTags = new HashSet<String>();
 
-    public KuromojiPartOfSpeechFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+    public KuromojiPartOfSpeechFilterFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
         super(indexSettings, name, settings);
-        List<String> wordList = Analysis.getWordList(environment, settings, "stoptags");
+        List<String> wordList = Analysis.getWordList(env, settings, "stoptags");
         if (wordList != null) {
             stopTags.addAll(wordList);
         }

@@ -17,35 +17,23 @@
  * under the License.
  */
 
-package org.codelibs.elasticsearch.ja.analysis;
-
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+package org.codelibs.elasticsearch.ja.kuromoji.index.analysis;
 
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.ja.JapanesePartOfSpeechStopFilter;
+import org.apache.lucene.analysis.ja.JapaneseBaseFormFilter;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.env.Environment;
 import org.elasticsearch.index.IndexSettings;
 import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;
-import org.elasticsearch.index.analysis.Analysis;
 
-public class KuromojiPartOfSpeechFilterFactory extends AbstractTokenFilterFactory {
+public class KuromojiBaseFormFilterFactory extends AbstractTokenFilterFactory {
 
-    private final Set<String> stopTags = new HashSet<String>();
-
-    public KuromojiPartOfSpeechFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+    public KuromojiBaseFormFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
         super(indexSettings, name, settings);
-        List<String> wordList = Analysis.getWordList(environment, settings, "stoptags");
-        if (wordList != null) {
-            stopTags.addAll(wordList);
-        }
     }
 
     @Override
     public TokenStream create(TokenStream tokenStream) {
-        return new JapanesePartOfSpeechStopFilter(tokenStream, stopTags);
+        return new JapaneseBaseFormFilter(tokenStream);
     }
-
 }

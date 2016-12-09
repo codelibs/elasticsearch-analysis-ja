@@ -42,13 +42,9 @@ public class PosConcatenationFilterFactoryTest {
             public void build(final int number, final Builder settingsBuilder) {
                 settingsBuilder.put("http.cors.enabled", true);
                 settingsBuilder.put("http.cors.allow-origin", "*");
-                settingsBuilder.put("index.number_of_shards", 3);
-                settingsBuilder.put("index.number_of_replicas", 0);
                 settingsBuilder.putArray("discovery.zen.ping.unicast.hosts", "localhost:9301-9310");
-                settingsBuilder.put("plugin.types", "org.codelibs.elasticsearch.ja.JaPlugin");
-                settingsBuilder.put("index.unassigned.node_left.delayed_timeout","0");
             }
-        }).build(newConfigs().clusterName(clusterName).numOfNode(numOfNode));
+        }).build(newConfigs().clusterName(clusterName).numOfNode(numOfNode).pluginTypes("org.codelibs.elasticsearch.ja.JaPlugin"));
 
         numberSuffixFiles = null;
     }

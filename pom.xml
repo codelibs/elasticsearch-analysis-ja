@@ -102,7 +102,7 @@
 		<dependency>
 			<groupId>org.codelibs</groupId>
 			<artifactId>analyzers-ja</artifactId>
-			<version>6.4.0.0</version>
+			<version>6.4.1.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.lucene</groupId>

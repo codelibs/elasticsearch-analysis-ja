@@ -7,19 +7,7 @@ Elasticsearch Analysis Ja Plugin provides Tokenizer/CharFilter/TokenFilter for J
 
 ## Version
 
-| Version   | elasticsearch |
-|:---------:|:-------------:|
-| master    | 5.3.X         |
-| 5.3.0     | 5.3.0         |
-| 5.1.0     | 5.1.2         |
-| 5.0.0     | 5.0.2         |
-| 2.4.0     | 2.4.0         |
-| 2.3.0     | 2.3.1         |
-| 2.2.1     | 2.2.2         |
-| 2.1.1     | 2.1.2         |
-| 1.7.0     | 1.7.4         |
-| 1.5.1     | 1.5.2         |
-| 1.4.0     | 1.4.4         |
+[Versions in Maven Repository](http://central.maven.org/maven2/org/codelibs/elasticsearch-analysis-ja/)
 
 ### Issues/Questions
 

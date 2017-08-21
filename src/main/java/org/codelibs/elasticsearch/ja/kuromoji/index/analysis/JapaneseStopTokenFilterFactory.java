@@ -45,7 +45,7 @@ public class JapaneseStopTokenFilterFactory extends AbstractTokenFilterFactory{
 
     private final boolean removeTrailing;
 
-    public JapaneseStopTokenFilterFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
+    public JapaneseStopTokenFilterFactory(final IndexSettings indexSettings, final Environment env, final String name, final Settings settings) {
         super(indexSettings, name, settings);
         this.ignoreCase = settings.getAsBoolean("ignore_case", false);
         this.removeTrailing = settings.getAsBoolean("remove_trailing", true);
@@ -53,7 +53,7 @@ public class JapaneseStopTokenFilterFactory extends AbstractTokenFilterFactory{
     }
 
     @Override
-    public TokenStream create(TokenStream tokenStream) {
+    public TokenStream create(final TokenStream tokenStream) {
         if (removeTrailing) {
             return new StopFilter(tokenStream, stopWords);
         } else {

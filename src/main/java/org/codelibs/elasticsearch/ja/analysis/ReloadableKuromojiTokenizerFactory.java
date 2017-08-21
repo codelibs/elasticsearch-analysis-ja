@@ -69,9 +69,9 @@ public class ReloadableKuromojiTokenizerFactory extends
 
     protected final Field dictionaryMapField;
 
-    private Environment env;
+    private final Environment env;
 
-    private Settings settings;
+    private final Settings settings;
 
     private File reloadableFile = null;
 
@@ -85,9 +85,9 @@ public class ReloadableKuromojiTokenizerFactory extends
 
     private final Mode mode;
 
-    private boolean discartPunctuation;
+    private final boolean discartPunctuation;
 
-    public ReloadableKuromojiTokenizerFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
+    public ReloadableKuromojiTokenizerFactory(final IndexSettings indexSettings, final Environment env, final String name, final Settings settings) {
         super(indexSettings, name, settings);
         this.env = env;
         this.settings = settings;
@@ -106,7 +106,7 @@ public class ReloadableKuromojiTokenizerFactory extends
 
         final String monitoringFilePath = settings.get("user_dictionary");
         if (monitoringFilePath != null) {
-            Path path = env.configFile().resolve(monitoringFilePath);
+            final Path path = env.configFile().resolve(monitoringFilePath);
 
             try {
                 final File file = path.toFile();
@@ -123,7 +123,7 @@ public class ReloadableKuromojiTokenizerFactory extends
                                 + " (interval: " + reloadInterval + "ms)");
                     }
                 }
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 throw new IllegalArgumentException(
                         "Could not access " + monitoringFilePath, e);
             }
@@ -140,7 +140,7 @@ public class ReloadableKuromojiTokenizerFactory extends
         if (reloadableFile != null
                 && System.currentTimeMillis() - lastChecked > reloadInterval) {
             lastChecked = System.currentTimeMillis();
-            long timestamp = reloadableFile.lastModified();
+            final long timestamp = reloadableFile.lastModified();
             if (timestamp != dictionaryTimestamp) {
                 synchronized (reloadableFile) {
                     if (timestamp != dictionaryTimestamp) {
@@ -155,7 +155,7 @@ public class ReloadableKuromojiTokenizerFactory extends
 
     public final class TokenizerWrapper extends Tokenizer {
 
-        private JapaneseTokenizer tokenizer;
+        private final JapaneseTokenizer tokenizer;
 
         private long tokenizerTimestamp;
 
@@ -167,15 +167,15 @@ public class ReloadableKuromojiTokenizerFactory extends
                     discartPunctuation, mode);
 
             try {
-                Field attributesField = getAccessibleField(AttributeSource.class, "attributes");
+                final Field attributesField = getAccessibleField(AttributeSource.class, "attributes");
                 final Object attributesObj = attributesField.get(tokenizer);
                 attributesField.set(this, attributesObj);
 
-                Field attributeImplsField = getAccessibleField(AttributeSource.class, "attributeImpls");
+                final Field attributeImplsField = getAccessibleField(AttributeSource.class, "attributeImpls");
                 final Object attributeImplsObj = attributeImplsField.get(tokenizer);
                 attributeImplsField.set(this, attributeImplsObj);
 
-                Field currentStateField = getAccessibleField(AttributeSource.class, "currentState");
+                final Field currentStateField = getAccessibleField(AttributeSource.class, "currentState");
                 final Object currentStateObj = currentStateField.get(tokenizer);
                 currentStateField.set(this, currentStateObj);
             } catch (final Exception e) {
@@ -203,11 +203,12 @@ public class ReloadableKuromojiTokenizerFactory extends
                     try {
                         tokenizerTimestamp = dictionaryTimestamp;
                         userDictionaryField.set(tokenizer, userDictionary);
-                        TokenInfoFST userFst = userDictionary.getFST();
+                        final TokenInfoFST userFst = userDictionary.getFST();
                         userFSTField.set(tokenizer, userFst);
                         userFSTReaderField.set(tokenizer,
                                 userFst.getBytesReader());
                         @SuppressWarnings("unchecked")
+                        final
                         EnumMap<Type, Dictionary> dictionaryMap = (EnumMap<Type, Dictionary>) dictionaryMapField.get(tokenizer);
                         dictionaryMap.put(Type.USER, userDictionary);
                     } catch (final Exception e) {
@@ -260,16 +261,13 @@ public class ReloadableKuromojiTokenizerFactory extends
     }
 
     private static Field getAccessibleField(final Class<?> clazz, final String name) {
-        return AccessController.doPrivileged(new PrivilegedAction<Field>() {
-            @Override
-            public Field run() {
-                try {
-                    Field field = clazz.getDeclaredField(name);
-                    field.setAccessible(true);
-                    return field;
-                } catch (final Exception e) {
-                    throw new IllegalArgumentException("Failed to load fields.", e);
-                }
+        return AccessController.doPrivileged((PrivilegedAction<Field>) () -> {
+            try {
+                final Field field = clazz.getDeclaredField(name);
+                field.setAccessible(true);
+                return field;
+            } catch (final Exception e) {
+                throw new IllegalArgumentException("Failed to load fields.", e);
             }
         });
     }

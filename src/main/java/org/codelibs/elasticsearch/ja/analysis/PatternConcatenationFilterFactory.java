@@ -15,11 +15,11 @@ public class PatternConcatenationFilterFactory extends AbstractTokenFilterFactor
 
     private Pattern pattern2;
 
-    public PatternConcatenationFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+    public PatternConcatenationFilterFactory(final IndexSettings indexSettings, final Environment environment, final String name, final Settings settings) {
         super(indexSettings, name, settings);
 
-        String pattern1Str = settings.get("pattern1");
-        String pattern2Str = settings.get("pattern2", ".*");
+        final String pattern1Str = settings.get("pattern1");
+        final String pattern2Str = settings.get("pattern2", ".*");
 
         if (logger.isDebugEnabled()) {
             logger.debug("pattern1: {}, pattern2: {}", pattern1Str, pattern2Str);
@@ -31,7 +31,7 @@ public class PatternConcatenationFilterFactory extends AbstractTokenFilterFactor
     }
 
     @Override
-    public TokenStream create(TokenStream tokenStream) {
+    public TokenStream create(final TokenStream tokenStream) {
         return new PatternConcatenationFilter(tokenStream, pattern1, pattern2);
     }
 }

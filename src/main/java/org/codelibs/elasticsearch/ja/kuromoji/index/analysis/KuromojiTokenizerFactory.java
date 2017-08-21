@@ -46,9 +46,9 @@ public class KuromojiTokenizerFactory extends AbstractTokenizerFactory {
     private final String nBestExamples;
     private final int nBestCost;
 
-    private boolean discartPunctuation;
+    private final boolean discartPunctuation;
 
-    public KuromojiTokenizerFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
+    public KuromojiTokenizerFactory(final IndexSettings indexSettings, final Environment env, final String name, final Settings settings) {
         super(indexSettings, name, settings);
         mode = getMode(settings);
         userDictionary = getUserDictionary(env, settings);
@@ -57,7 +57,7 @@ public class KuromojiTokenizerFactory extends AbstractTokenizerFactory {
         nBestExamples = settings.get(NBEST_EXAMPLES);
     }
 
-    public static UserDictionary getUserDictionary(Environment env, Settings settings) {
+    public static UserDictionary getUserDictionary(final Environment env, final Settings settings) {
         try {
             final Reader reader = Analysis.getReaderFromFile(env, settings, USER_DICT_OPTION);
             if (reader == null) {
@@ -69,14 +69,14 @@ public class KuromojiTokenizerFactory extends AbstractTokenizerFactory {
                     reader.close();
                 }
             }
-        } catch (IOException e) {
+        } catch (final IOException e) {
             throw new ElasticsearchException("failed to load kuromoji user dictionary", e);
         }
     }
 
-    public static JapaneseTokenizer.Mode getMode(Settings settings) {
+    public static JapaneseTokenizer.Mode getMode(final Settings settings) {
         JapaneseTokenizer.Mode mode = JapaneseTokenizer.DEFAULT_MODE;
-        String modeSetting = settings.get("mode", null);
+        final String modeSetting = settings.get("mode", null);
         if (modeSetting != null) {
             if ("search".equalsIgnoreCase(modeSetting)) {
                 mode = JapaneseTokenizer.Mode.SEARCH;
@@ -91,7 +91,7 @@ public class KuromojiTokenizerFactory extends AbstractTokenizerFactory {
 
     @Override
     public Tokenizer create() {
-        JapaneseTokenizer t = new JapaneseTokenizer(userDictionary, discartPunctuation, mode);
+        final JapaneseTokenizer t = new JapaneseTokenizer(userDictionary, discartPunctuation, mode);
         int nBestCost = this.nBestCost;
         if (nBestExamples != null) {
             nBestCost = Math.max(nBestCost, t.calcNBestCost(nBestExamples));

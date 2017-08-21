@@ -9,19 +9,19 @@ import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;
 
 public class FlexiblePorterStemFilterFactory extends AbstractTokenFilterFactory {
 
-    private boolean step1;
+    private final boolean step1;
 
-    private boolean step2;
+    private final boolean step2;
 
-    private boolean step3;
+    private final boolean step3;
 
-    private boolean step4;
+    private final boolean step4;
 
-    private boolean step5;
+    private final boolean step5;
 
-    private boolean step6;
+    private final boolean step6;
 
-    public FlexiblePorterStemFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+    public FlexiblePorterStemFilterFactory(final IndexSettings indexSettings, final Environment environment, final String name, final Settings settings) {
         super(indexSettings, name, settings);
 
         step1 = settings.getAsBoolean("step1", true);
@@ -33,7 +33,7 @@ public class FlexiblePorterStemFilterFactory extends AbstractTokenFilterFactory 
     }
 
     @Override
-    public TokenStream create(TokenStream tokenStream) {
+    public TokenStream create(final TokenStream tokenStream) {
         return new FlexiblePorterStemFilter(tokenStream, step1, step2, step3, step4, step5, step6);
     }
 

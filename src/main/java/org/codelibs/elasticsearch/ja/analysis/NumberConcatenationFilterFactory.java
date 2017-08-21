@@ -20,16 +20,16 @@ public class NumberConcatenationFilterFactory extends AbstractTokenFilterFactory
 
     private CharArraySet suffixWords;
 
-    public NumberConcatenationFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+    public NumberConcatenationFilterFactory(final IndexSettings indexSettings, final Environment environment, final String name, final Settings settings) {
         super(indexSettings, name, settings);
 
-        String suffixWordsPath = settings.get("suffix_words_path");
+        final String suffixWordsPath = settings.get("suffix_words_path");
 
         if (suffixWordsPath != null) {
-            File suffixWordsFile = environment.configFile().resolve(suffixWordsPath).toFile();
+            final File suffixWordsFile = environment.configFile().resolve(suffixWordsPath).toFile();
             try (Reader reader = IOUtils.getDecodingReader(new FileInputStream(suffixWordsFile), StandardCharsets.UTF_8)) {
                 suffixWords = WordlistLoader.getWordSet(reader);
-            } catch (IOException e) {
+            } catch (final IOException e) {
                 throw new IllegalArgumentException("Could not load " + suffixWordsFile.getAbsolutePath(), e);
             }
         } else {
@@ -38,7 +38,7 @@ public class NumberConcatenationFilterFactory extends AbstractTokenFilterFactory
     }
 
     @Override
-    public TokenStream create(TokenStream tokenStream) {
+    public TokenStream create(final TokenStream tokenStream) {
         return new NumberConcatenationFilter(tokenStream, suffixWords);
     }
 }

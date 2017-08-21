@@ -32,14 +32,14 @@ public class KuromojiIterationMarkCharFilterFactory extends AbstractCharFilterFa
     private final boolean normalizeKanji;
     private final boolean normalizeKana;
 
-    public KuromojiIterationMarkCharFilterFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
+    public KuromojiIterationMarkCharFilterFactory(final IndexSettings indexSettings, final Environment env, final String name, final Settings settings) {
         super(indexSettings, name);
         normalizeKanji = settings.getAsBoolean("normalize_kanji", JapaneseIterationMarkCharFilter.NORMALIZE_KANJI_DEFAULT);
         normalizeKana = settings.getAsBoolean("normalize_kana", JapaneseIterationMarkCharFilter.NORMALIZE_KANA_DEFAULT);
     }
 
     @Override
-    public Reader create(Reader reader) {
+    public Reader create(final Reader reader) {
         return new JapaneseIterationMarkCharFilter(reader, normalizeKanji, normalizeKana);
     }
 }

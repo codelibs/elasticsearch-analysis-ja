@@ -33,7 +33,7 @@ public class JaPlugin extends Plugin implements AnalysisPlugin {
 
     @Override
     public Map<String, AnalysisProvider<CharFilterFactory>> getCharFilters() {
-        Map<String, AnalysisProvider<CharFilterFactory>> extra = new HashMap<>();
+        final Map<String, AnalysisProvider<CharFilterFactory>> extra = new HashMap<>();
         extra.put("iteration_mark", IterationMarkCharFilterFactory::new);
         extra.put("prolonged_sound_mark", ProlongedSoundMarkCharFilterFactory::new);
         extra.put("reloadable_kuromoji_iteration_mark", KuromojiIterationMarkCharFilterFactory::new);
@@ -42,7 +42,7 @@ public class JaPlugin extends Plugin implements AnalysisPlugin {
 
     @Override
     public Map<String, AnalysisProvider<TokenFilterFactory>> getTokenFilters() {
-        Map<String, AnalysisProvider<TokenFilterFactory>> extra = new HashMap<>();
+        final Map<String, AnalysisProvider<TokenFilterFactory>> extra = new HashMap<>();
         extra.put("reloadable_kuromoji_baseform", KuromojiBaseFormFilterFactory::new);
         extra.put("reloadable_kuromoji_part_of_speech", KuromojiPartOfSpeechFilterFactory::new);
         extra.put("reloadable_kuromoji_readingform", KuromojiReadingFormFilterFactory::new);
@@ -63,7 +63,7 @@ public class JaPlugin extends Plugin implements AnalysisPlugin {
 
     @Override
     public Map<String, AnalysisProvider<TokenizerFactory>> getTokenizers() {
-        Map<String, AnalysisProvider<TokenizerFactory>> extra = new HashMap<>();
+        final Map<String, AnalysisProvider<TokenizerFactory>> extra = new HashMap<>();
         extra.put("reloadable_kuromoji_tokenizer", ReloadableKuromojiTokenizerFactory::new);
         extra.put("reloadable_kuromoji", ReloadableKuromojiTokenizerFactory::new);
         return extra;

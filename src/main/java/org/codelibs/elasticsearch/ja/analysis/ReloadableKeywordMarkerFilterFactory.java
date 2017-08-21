@@ -16,7 +16,7 @@ public class ReloadableKeywordMarkerFilterFactory extends AbstractTokenFilterFac
 
     private final long reloadInterval;
 
-    public ReloadableKeywordMarkerFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+    public ReloadableKeywordMarkerFilterFactory(final IndexSettings indexSettings, final Environment environment, final String name, final Settings settings) {
         super(indexSettings, name, settings);
 
         final String path = settings.get("keywords_path");
@@ -30,7 +30,7 @@ public class ReloadableKeywordMarkerFilterFactory extends AbstractTokenFilterFac
     }
 
     @Override
-    public TokenStream create(TokenStream tokenStream) {
+    public TokenStream create(final TokenStream tokenStream) {
         if (keywordPath == null) {
             return tokenStream;
         }

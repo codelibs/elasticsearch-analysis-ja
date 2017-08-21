@@ -30,13 +30,13 @@ public class KuromojiReadingFormFilterFactory extends AbstractTokenFilterFactory
 
     private final boolean useRomaji;
 
-    public KuromojiReadingFormFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+    public KuromojiReadingFormFilterFactory(final IndexSettings indexSettings, final Environment environment, final String name, final Settings settings) {
         super(indexSettings, name, settings);
         useRomaji = settings.getAsBoolean("use_romaji", false);
     }
 
     @Override
-    public TokenStream create(TokenStream tokenStream) {
+    public TokenStream create(final TokenStream tokenStream) {
         return new JapaneseReadingFormFilter(tokenStream, useRomaji);
     }
 }

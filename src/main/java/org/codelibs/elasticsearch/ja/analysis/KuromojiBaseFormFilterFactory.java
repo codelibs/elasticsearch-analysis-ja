@@ -28,12 +28,12 @@ import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;
 
 public class KuromojiBaseFormFilterFactory extends AbstractTokenFilterFactory {
 
-    public KuromojiBaseFormFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+    public KuromojiBaseFormFilterFactory(final IndexSettings indexSettings, final Environment environment, final String name, final Settings settings) {
         super(indexSettings, name, settings);
     }
 
     @Override
-    public TokenStream create(TokenStream tokenStream) {
+    public TokenStream create(final TokenStream tokenStream) {
         return new JapaneseBaseFormFilter(tokenStream);
     }
 }

@@ -33,18 +33,18 @@ import org.elasticsearch.index.analysis.Analysis;
 
 public class KuromojiPartOfSpeechFilterFactory extends AbstractTokenFilterFactory {
 
-    private final Set<String> stopTags = new HashSet<String>();
+    private final Set<String> stopTags = new HashSet<>();
 
-    public KuromojiPartOfSpeechFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+    public KuromojiPartOfSpeechFilterFactory(final IndexSettings indexSettings, final Environment environment, final String name, final Settings settings) {
         super(indexSettings, name, settings);
-        List<String> wordList = Analysis.getWordList(environment, settings, "stoptags");
+        final List<String> wordList = Analysis.getWordList(environment, settings, "stoptags");
         if (wordList != null) {
             stopTags.addAll(wordList);
         }
     }
 
     @Override
-    public TokenStream create(TokenStream tokenStream) {
+    public TokenStream create(final TokenStream tokenStream) {
         return new JapanesePartOfSpeechStopFilter(tokenStream, stopTags);
     }
 

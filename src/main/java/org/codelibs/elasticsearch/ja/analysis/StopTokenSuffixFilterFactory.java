@@ -15,12 +15,12 @@ public class StopTokenSuffixFilterFactory extends AbstractTokenFilterFactory {
 
     private final String[] stopwords;
 
-    private boolean ignoreCase;
+    private final boolean ignoreCase;
 
-    public StopTokenSuffixFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+    public StopTokenSuffixFilterFactory(final IndexSettings indexSettings, final Environment environment, final String name, final Settings settings) {
         super(indexSettings, name, settings);
 
-        List<String> wordList = Analysis.getWordList(environment, settings, "stopwords");
+        final List<String> wordList = Analysis.getWordList(environment, settings, "stopwords");
         if (wordList != null) {
             stopwords = wordList.toArray(new String[wordList.size()]);
         } else {
@@ -36,7 +36,7 @@ public class StopTokenSuffixFilterFactory extends AbstractTokenFilterFactory {
     }
 
     @Override
-    public TokenStream create(TokenStream tokenStream) {
+    public TokenStream create(final TokenStream tokenStream) {
         return new StopTokenSuffixFilter(tokenStream, stopwords, ignoreCase);
     }
 }

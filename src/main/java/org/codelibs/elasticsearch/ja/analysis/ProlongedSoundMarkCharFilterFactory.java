@@ -11,9 +11,9 @@ import org.elasticsearch.index.analysis.AbstractCharFilterFactory;
 public class ProlongedSoundMarkCharFilterFactory extends AbstractCharFilterFactory {
     private char replacement;
 
-    public ProlongedSoundMarkCharFilterFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
+    public ProlongedSoundMarkCharFilterFactory(final IndexSettings indexSettings, final Environment env, final String name, final Settings settings) {
         super(indexSettings, name);
-        String value = settings.get("replacement");
+        final String value = settings.get("replacement");
         if (value == null || value.length() == 0) {
             replacement = '\u30fc';
         } else {
@@ -22,7 +22,7 @@ public class ProlongedSoundMarkCharFilterFactory extends AbstractCharFilterFacto
     }
 
     @Override
-    public Reader create(Reader tokenStream) {
+    public Reader create(final Reader tokenStream) {
         return new ProlongedSoundMarkCharFilter(tokenStream, replacement);
     }
 

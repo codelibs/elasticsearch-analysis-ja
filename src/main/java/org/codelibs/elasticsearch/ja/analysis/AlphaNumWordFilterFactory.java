@@ -11,15 +11,15 @@ public class AlphaNumWordFilterFactory extends AbstractTokenFilterFactory {
 
     private final int maxTokenLength;
 
-    public AlphaNumWordFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+    public AlphaNumWordFilterFactory(final IndexSettings indexSettings, final Environment environment, final String name, final Settings settings) {
         super(indexSettings, name, settings);
 
         maxTokenLength = settings.getAsInt("max_token_length", AlphaNumWordFilter.DEFAULT_MAX_TOKEN_LENGTH);
     }
 
     @Override
-    public TokenStream create(TokenStream tokenStream) {
-        AlphaNumWordFilter alphaNumWordFilter = new AlphaNumWordFilter(tokenStream);
+    public TokenStream create(final TokenStream tokenStream) {
+        final AlphaNumWordFilter alphaNumWordFilter = new AlphaNumWordFilter(tokenStream);
         alphaNumWordFilter.setMaxTokenLength(maxTokenLength);
         return alphaNumWordFilter;
     }

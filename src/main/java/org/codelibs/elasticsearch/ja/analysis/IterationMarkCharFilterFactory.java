@@ -10,12 +10,12 @@ import org.elasticsearch.index.analysis.AbstractCharFilterFactory;
 
 public class IterationMarkCharFilterFactory extends AbstractCharFilterFactory {
 
-    public IterationMarkCharFilterFactory(IndexSettings indexSettings, Environment env, String name, Settings settings) {
+    public IterationMarkCharFilterFactory(final IndexSettings indexSettings, final Environment env, final String name, final Settings settings) {
         super(indexSettings, name);
     }
 
     @Override
-    public Reader create(Reader tokenStream) {
+    public Reader create(final Reader tokenStream) {
         return new IterationMarkCharFilter(tokenStream);
     }
 

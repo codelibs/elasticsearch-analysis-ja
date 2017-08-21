@@ -18,7 +18,7 @@ public class ReloadableStopFilterFactory extends AbstractTokenFilterFactory {
 
     private final boolean ignoreCase;
 
-    public ReloadableStopFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+    public ReloadableStopFilterFactory(final IndexSettings indexSettings, final Environment environment, final String name, final Settings settings) {
         super(indexSettings, name, settings);
 
         final String path = settings.get("stopwords_path");
@@ -33,7 +33,7 @@ public class ReloadableStopFilterFactory extends AbstractTokenFilterFactory {
     }
 
     @Override
-    public TokenStream create(TokenStream tokenStream) {
+    public TokenStream create(final TokenStream tokenStream) {
         if (stopwordPath == null) {
             return tokenStream;
         }

@@ -15,7 +15,7 @@ public class CharTypeFilterFactory extends AbstractTokenFilterFactory {
 
     private final boolean letter;
 
-    public CharTypeFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+    public CharTypeFilterFactory(final IndexSettings indexSettings, final Environment environment, final String name, final Settings settings) {
         super(indexSettings, name, settings);
 
         alphabetic = settings.getAsBoolean("alphabetic", true);
@@ -24,7 +24,7 @@ public class CharTypeFilterFactory extends AbstractTokenFilterFactory {
     }
 
     @Override
-    public TokenStream create(TokenStream tokenStream) {
+    public TokenStream create(final TokenStream tokenStream) {
         return new CharTypeFilter(tokenStream, alphabetic, digit, letter);
     }
 }

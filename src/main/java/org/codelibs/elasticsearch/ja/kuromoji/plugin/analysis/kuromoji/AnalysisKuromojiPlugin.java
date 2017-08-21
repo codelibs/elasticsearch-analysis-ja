@@ -50,7 +50,7 @@ public class AnalysisKuromojiPlugin extends Plugin implements AnalysisPlugin {
 
     @Override
     public Map<String, AnalysisProvider<TokenFilterFactory>> getTokenFilters() {
-        Map<String, AnalysisProvider<TokenFilterFactory>> extra = new HashMap<>();
+        final Map<String, AnalysisProvider<TokenFilterFactory>> extra = new HashMap<>();
         extra.put("kuromoji_baseform", KuromojiBaseFormFilterFactory::new);
         extra.put("kuromoji_part_of_speech", KuromojiPartOfSpeechFilterFactory::new);
         extra.put("kuromoji_readingform", KuromojiReadingFormFilterFactory::new);

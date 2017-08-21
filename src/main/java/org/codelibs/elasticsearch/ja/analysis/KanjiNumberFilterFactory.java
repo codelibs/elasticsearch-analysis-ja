@@ -9,12 +9,12 @@ import org.elasticsearch.index.analysis.AbstractTokenFilterFactory;
 
 public class KanjiNumberFilterFactory extends AbstractTokenFilterFactory {
 
-    public KanjiNumberFilterFactory(IndexSettings indexSettings, Environment environment, String name, Settings settings) {
+    public KanjiNumberFilterFactory(final IndexSettings indexSettings, final Environment environment, final String name, final Settings settings) {
         super(indexSettings, name, settings);
     }
 
     @Override
-    public TokenStream create(TokenStream tokenStream) {
+    public TokenStream create(final TokenStream tokenStream) {
         return new KanjiNumberFilter(tokenStream);
     }
 

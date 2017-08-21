@@ -37,7 +37,7 @@ public class KuromojiAnalyzerProvider extends AbstractIndexAnalyzerProvider<Japa
 
     private final JapaneseAnalyzer analyzer;
 
-    public KuromojiAnalyzerProvider(IndexSettings indexSettings, Environment env, String name, Settings settings) {
+    public KuromojiAnalyzerProvider(final IndexSettings indexSettings, final Environment env, final String name, final Settings settings) {
         super(indexSettings, name, settings);
         final Set<?> stopWords = Analysis.parseStopWords(env, settings, JapaneseAnalyzer.getDefaultStopSet());
         final JapaneseTokenizer.Mode mode = KuromojiTokenizerFactory.getMode(settings);

@@ -64,8 +64,8 @@ public class ReloadableStopFilterFactoryTest {
     public void test_basic() throws Exception {
         stopwordFiles = new File[numOfNode];
         for (int i = 0; i < numOfNode; i++) {
-            String confPath = runner.getNode(i).settings().get("path.conf");
-            stopwordFiles[i] = new File(confPath, "stopwords.txt");
+            String homePath = runner.getNode(i).settings().get("path.home");
+            stopwordFiles[i] = new File(new File(homePath, "config"), "stopwords.txt");
             updateDictionary(stopwordFiles[i], "aaa\nbbb");
         }
 
@@ -84,8 +84,8 @@ public class ReloadableStopFilterFactoryTest {
 
         {
             String text = "aaa bbb ccc";
-            try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "stop_analyzer").body(text).execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"stop_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
                 assertEquals(1, tokens.size());
@@ -94,8 +94,8 @@ public class ReloadableStopFilterFactoryTest {
         }
 
         for (int i = 0; i < numOfNode; i++) {
-            String confPath = runner.getNode(i).settings().get("path.conf");
-            stopwordFiles[i] = new File(confPath, "stopwords.txt");
+            String homePath = runner.getNode(i).settings().get("path.home");
+            stopwordFiles[i] = new File(new File(homePath, "config"), "stopwords.txt");
             updateDictionary(stopwordFiles[i], "bbb\nccc");
         }
 
@@ -103,8 +103,8 @@ public class ReloadableStopFilterFactoryTest {
 
         {
             String text = "aaa bbb ccc";
-            try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "stop_analyzer").body(text).execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"stop_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
                 assertEquals(1, tokens.size());

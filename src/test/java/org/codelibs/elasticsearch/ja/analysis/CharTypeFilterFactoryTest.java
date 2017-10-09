@@ -67,10 +67,8 @@ public class CharTypeFilterFactoryTest {
         runner.ensureYellow();
         {
             String text = "aaa aa1 aaあ aa! 111 11あ 11- あああ ああ- ---";
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_alphabetic_analyzer").body(text)
-                    .execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ja_alphabetic_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
                         .getContentAsMap().get("tokens");
@@ -106,10 +104,8 @@ public class CharTypeFilterFactoryTest {
 
         {
             String text = "aaa aa1 aaあ aa! 111 11あ 11- あああ ああ- ---";
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_alphabetic_analyzer").body(text)
-                    .execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ja_alphabetic_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
                         .getContentAsMap().get("tokens");
@@ -145,10 +141,8 @@ public class CharTypeFilterFactoryTest {
 
         {
             String text = "aaa aa1 aaあ aa! 111 11あ 11- あああ ああ- ---";
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_alphabetic_analyzer").body(text)
-                    .execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ja_alphabetic_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
                         .getContentAsMap().get("tokens");
@@ -187,10 +181,8 @@ public class CharTypeFilterFactoryTest {
 
         {
             String text = "aaa aa1 aaあ aa! 111 11あ 11- あああ ああ- ---";
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_alphabetic_analyzer").body(text)
-                    .execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ja_alphabetic_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
                         .getContentAsMap().get("tokens");

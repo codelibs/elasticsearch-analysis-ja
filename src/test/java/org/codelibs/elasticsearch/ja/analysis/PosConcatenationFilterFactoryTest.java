@@ -64,8 +64,8 @@ public class PosConcatenationFilterFactoryTest {
     public void test_basic() throws Exception {
         numberSuffixFiles = new File[numOfNode];
         for (int i = 0; i < numOfNode; i++) {
-            String confPath = runner.getNode(i).settings().get("path.conf");
-            numberSuffixFiles[i] = new File(confPath, "tags.txt");
+            String homePath = runner.getNode(i).settings().get("path.home");
+            numberSuffixFiles[i] = new File(new File(homePath, "config"), "tags.txt");
             updateDictionary(numberSuffixFiles[i], "名詞-形容動詞語幹\n名詞-サ変接続");
         }
 
@@ -90,10 +90,8 @@ public class PosConcatenationFilterFactoryTest {
 
         {
             String text = "詳細設計";
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_concat_analyzer").body(text)
-                    .execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ja_concat_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
                         .getContentAsMap().get("tokens");

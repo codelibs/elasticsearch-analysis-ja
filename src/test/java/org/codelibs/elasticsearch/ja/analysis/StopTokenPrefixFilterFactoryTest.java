@@ -63,8 +63,8 @@ public class StopTokenPrefixFilterFactoryTest {
 
         {
             String text = "aaa bbb ccc ddd eee";
-            try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ja_stop_analyzer").body(text).execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ja_stop_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
                 assertEquals(3, tokens.size());
@@ -76,8 +76,8 @@ public class StopTokenPrefixFilterFactoryTest {
 
         {
             String text = "abbb bbba";
-            try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ja_stop_analyzer").body(text).execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ja_stop_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
                 assertEquals(1, tokens.size());

@@ -63,8 +63,8 @@ public class FlexiblePorterStemFilterFactoryTest {
 
         {
             String text = "consist consisted consistency consistent consistently consisting consists";
-            try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "stem1_analyzer").body(text).execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"stem1_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
                 assertEquals(7, tokens.size());

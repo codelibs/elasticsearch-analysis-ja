@@ -84,8 +84,8 @@ public class JaPluginTest {
     public void test_kuromoji() throws Exception {
         userDictFiles = new File[numOfNode];
         for (int i = 0; i < numOfNode; i++) {
-            String confPath = runner.getNode(i).settings().get("path.conf");
-            userDictFiles[i] = new File(confPath, "userdict_ja.txt");
+            String homePath = runner.getNode(i).settings().get("path.home");
+            userDictFiles[i] = new File(new File(homePath, "config"), "userdict_ja.txt");
             updateDictionary(userDictFiles[i],
                     "東京スカイツリー,東京 スカイツリー,トウキョウ スカイツリー,カスタム名詞");
         }
@@ -119,19 +119,18 @@ public class JaPluginTest {
 
                 // id
                 .startObject("id")//
-                .field("type", "string")//
-                .field("index", "not_analyzed")//
+                .field("type", "keyword")//
                 .endObject()//
 
                 // msg1
                 .startObject("msg1")//
-                .field("type", "string")//
+                .field("type", "text")//
                 .field("analyzer", "ja_reload_analyzer")//
                 .endObject()//
 
                 // msg2
                 .startObject("msg2")//
-                .field("type", "string")//
+                .field("type", "text")//
                 .field("analyzer", "ja_analyzer")//
                 .endObject()//
 
@@ -145,14 +144,14 @@ public class JaPluginTest {
         assertEquals(RestStatus.CREATED, indexResponse1.status());
         runner.refresh();
 
+        String text;
         for (int i = 0; i < 1000; i++) {
-            assertDocCount(1, index, type, "msg1", "東京スカイツリー");
-            assertDocCount(1, index, type, "msg2", "東京スカイツリー");
+            text = "東京スカイツリー";
+            assertDocCount(1, index, type, "msg1", text);
+            assertDocCount(1, index, type, "msg2", text);
 
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_reload_analyzer").body("東京スカイツリー")
-                    .execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ja_reload_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
                         .getContentAsMap().get("tokens");
@@ -160,10 +159,9 @@ public class JaPluginTest {
                 assertEquals("スカイツリ", tokens.get(1).get("token").toString());
             }
 
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_reload_analyzer").body("朝青龍")
-                    .execute()) {
+            text = "朝青龍";
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ja_reload_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
                         .getContentAsMap().get("tokens");
@@ -187,13 +185,12 @@ public class JaPluginTest {
         runner.refresh();
 
         for (int i = 0; i < 1000; i++) {
-            assertDocCount(1, index, type, "msg1", "東京スカイツリー");
-            assertDocCount(2, index, type, "msg2", "東京スカイツリー");
+            text = "東京スカイツリー";
+            assertDocCount(1, index, type, "msg1", text);
+            assertDocCount(2, index, type, "msg2", text);
 
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_reload_analyzer").body("東京スカイツリー")
-                    .execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ja_reload_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
                         .getContentAsMap().get("tokens");
@@ -202,14 +199,13 @@ public class JaPluginTest {
                 assertEquals("ツリー", tokens.get(2).get("token").toString());
             }
 
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_reload_analyzer").body("朝青龍")
-                    .execute()) {
+            text = "朝青龍";
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ja_reload_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
                         .getContentAsMap().get("tokens");
-                assertEquals("朝青龍", tokens.get(0).get("token").toString());
+                assertEquals(text, tokens.get(0).get("token").toString());
             }
         }
     }
@@ -241,19 +237,18 @@ public class JaPluginTest {
 
                 // id
                 .startObject("id")//
-                .field("type", "string")//
-                .field("index", "not_analyzed")//
+                .field("type", "keyword")//
                 .endObject()//
 
                 // msg1
                 .startObject("msg1")//
-                .field("type", "string")//
+                .field("type", "text")//
                 .field("analyzer", "ja_imark_analyzer")//
                 .endObject()//
 
                 // msg2
                 .startObject("msg2")//
-                .field("type", "string")//
+                .field("type", "text")//
                 .field("analyzer", "ja_analyzer")//
                 .endObject()//
 
@@ -276,10 +271,9 @@ public class JaPluginTest {
 
         for (int i = 0; i < inputs.length; i++) {
             String[] values = inputs[i].split(" ");
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_imark_analyzer").body(values[0])
-                    .execute()) {
+            String text = values[0];
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ja_imark_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
                         .getContentAsMap().get("tokens");
@@ -316,19 +310,18 @@ public class JaPluginTest {
 
                 // id
                 .startObject("id")//
-                .field("type", "string")//
-                .field("index", "not_analyzed")//
+                .field("type", "keyword")//
                 .endObject()//
 
                 // msg1
                 .startObject("msg1")//
-                .field("type", "string")//
+                .field("type", "text")//
                 .field("analyzer", "ja_psmark_analyzer")//
                 .endObject()//
 
                 // msg2
                 .startObject("msg2")//
-                .field("type", "string")//
+                .field("type", "text")//
                 .field("analyzer", "ja_analyzer")//
                 .endObject()//
 
@@ -350,11 +343,10 @@ public class JaPluginTest {
         assertDocCount(1, index, type, "msg2", "あ‐");
 
         for (String psm : psms) {
-            assertDocCount(1, index, type, "msg1", "あ" + psm);
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_psmark_analyzer").body("あ" + psm)
-                    .execute()) {
+            String text = "あ" + psm;
+            assertDocCount(1, index, type, "msg1", text);
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ja_psmark_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
                         .getContentAsMap().get("tokens");
@@ -394,19 +386,18 @@ public class JaPluginTest {
 
                 // id
                 .startObject("id")//
-                .field("type", "string")//
-                .field("index", "not_analyzed")//
+                .field("type", "keyword")//
                 .endObject()//
 
                 // msg1
                 .startObject("msg1")//
-                .field("type", "string")//
+                .field("type", "text")//
                 .field("analyzer", "ja_knum_analyzer")//
                 .endObject()//
 
                 // msg2
                 .startObject("msg2")//
-                .field("type", "string")//
+                .field("type", "text")//
                 .field("analyzer", "ja_analyzer")//
                 .endObject()//
 
@@ -425,8 +416,9 @@ public class JaPluginTest {
         assertDocCount(1, index, type, "msg2", "十二時間");
         assertDocCount(0, index, type, "msg2", "12時間");
 
-        try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze")
-                .param("analyzer", "ja_knum_analyzer").body("一億九千万円").execute()) {
+        String text = "一億九千万円";
+        try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                .body("{\"analyzer\":\"ja_knum_analyzer\",\"text\":\"" + text + "\"}").execute()) {
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
                     .getContentAsMap().get("tokens");

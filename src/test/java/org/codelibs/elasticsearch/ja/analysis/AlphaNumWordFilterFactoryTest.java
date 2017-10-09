@@ -69,8 +69,8 @@ public class AlphaNumWordFilterFactoryTest {
 
         {
             String text = "aaa";
-            try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ngram_word_analyzer").body(text).execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ngram_word_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
                 assertEquals(1, tokens.size());
@@ -80,8 +80,8 @@ public class AlphaNumWordFilterFactoryTest {
 
         {
             String text = "aaa bbb";
-            try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ngram_word_analyzer").body(text).execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ngram_word_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
                 assertEquals(2, tokens.size());
@@ -92,8 +92,8 @@ public class AlphaNumWordFilterFactoryTest {
 
         {
             String text = "aa1 bb2 333";
-            try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ngram_word_analyzer").body(text).execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ngram_word_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
                 assertEquals(3, tokens.size());
@@ -105,8 +105,8 @@ public class AlphaNumWordFilterFactoryTest {
 
         {
             String text = "aaa亜aaa";
-            try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ngram_word_analyzer").body(text).execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ngram_word_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
                 assertEquals(3, tokens.size());
@@ -118,8 +118,8 @@ public class AlphaNumWordFilterFactoryTest {
 
         {
             String text = "嬉しい";
-            try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ngram_word_analyzer").body(text).execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ngram_word_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
                 assertEquals(3, tokens.size());
@@ -155,8 +155,8 @@ public class AlphaNumWordFilterFactoryTest {
 
         {
             String text = "aaa";
-            try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ngram_word_analyzer").body(text).execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ngram_word_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
                 assertEquals(1, tokens.size());
@@ -166,8 +166,8 @@ public class AlphaNumWordFilterFactoryTest {
 
         {
             String text = "aaa bbb";
-            try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ngram_word_analyzer").body(text).execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ngram_word_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
                 assertEquals(2, tokens.size());
@@ -178,8 +178,8 @@ public class AlphaNumWordFilterFactoryTest {
 
         {
             String text = "aa1 bb2 333";
-            try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ngram_word_analyzer").body(text).execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ngram_word_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
                 assertEquals(3, tokens.size());
@@ -191,8 +191,8 @@ public class AlphaNumWordFilterFactoryTest {
 
         {
             String text = "aaa亜aaa";
-            try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ngram_word_analyzer").body(text).execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ngram_word_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
                 assertEquals(3, tokens.size());
@@ -204,8 +204,8 @@ public class AlphaNumWordFilterFactoryTest {
 
         {
             String text = "嬉しい";
-            try (CurlResponse response =
-                    Curl.post(node, "/" + index + "/_analyze").param("analyzer", "ngram_word_analyzer").body(text).execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ngram_word_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response.getContentAsMap().get("tokens");
                 assertEquals(3, tokens.size());

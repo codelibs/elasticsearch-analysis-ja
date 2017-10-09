@@ -64,8 +64,8 @@ public class NumberConcatenationFilterFactoryTest {
     public void test_basic() throws Exception {
         numberSuffixFiles = new File[numOfNode];
         for (int i = 0; i < numOfNode; i++) {
-            String confPath = runner.getNode(i).settings().get("path.conf");
-            numberSuffixFiles[i] = new File(confPath, "number_suffix.txt");
+            String homePath = runner.getNode(i).settings().get("path.home");
+            numberSuffixFiles[i] = new File(new File(homePath, "config"), "number_suffix.txt");
             updateDictionary(numberSuffixFiles[i], "円\n人");
         }
 
@@ -90,10 +90,8 @@ public class NumberConcatenationFilterFactoryTest {
 
         {
             String text = "100 円";
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_concat_analyzer").body(text)
-                    .execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ja_concat_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
                         .getContentAsMap().get("tokens");
@@ -104,10 +102,8 @@ public class NumberConcatenationFilterFactoryTest {
 
         {
             String text = "aaa 100 人";
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_concat_analyzer").body(text)
-                    .execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ja_concat_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
                         .getContentAsMap().get("tokens");
@@ -119,10 +115,8 @@ public class NumberConcatenationFilterFactoryTest {
 
         {
             String text = "1 1 人 2 100 円 3";
-            try (CurlResponse response = Curl
-                    .post(node, "/" + index + "/_analyze")
-                    .param("analyzer", "ja_concat_analyzer").body(text)
-                    .execute()) {
+            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+                    .body("{\"analyzer\":\"ja_concat_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
                         .getContentAsMap().get("tokens");

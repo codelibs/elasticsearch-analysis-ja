@@ -18,6 +18,7 @@ import org.codelibs.elasticsearch.runner.net.Curl;
 import org.codelibs.elasticsearch.runner.net.CurlResponse;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.settings.Settings.Builder;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.node.Node;
 import org.junit.After;
 import org.junit.Before;
@@ -42,7 +43,7 @@ public class ReloadableStopFilterFactoryTest {
             public void build(final int number, final Builder settingsBuilder) {
                 settingsBuilder.put("http.cors.enabled", true);
                 settingsBuilder.put("http.cors.allow-origin", "*");
-                settingsBuilder.putArray("discovery.zen.ping.unicast.hosts", "localhost:9301-9310");
+                settingsBuilder.putList("discovery.zen.ping.unicast.hosts", "localhost:9301-9310");
             }
         }).build(newConfigs().clusterName(clusterName).numOfNode(numOfNode).pluginTypes("org.codelibs.elasticsearch.ja.JaPlugin"));
 
@@ -79,7 +80,7 @@ public class ReloadableStopFilterFactoryTest {
                 + "\"analyzer\":{" + "\"default_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\"},"
                 + "\"stop_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\",\"filter\":[\"stop_filter\"]}" + "}"//
                 + "}}}";
-        runner.createIndex(index, Settings.builder().loadFromSource(indexSettings).build());
+        runner.createIndex(index, Settings.builder().loadFromSource(indexSettings, XContentType.JSON).build());
         runner.ensureYellow();
 
         {

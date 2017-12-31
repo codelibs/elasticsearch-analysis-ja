@@ -22,6 +22,7 @@ import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.settings.Settings.Builder;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
+import org.elasticsearch.common.xcontent.XContentType;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
 import org.elasticsearch.rest.RestStatus;
@@ -50,7 +51,7 @@ public class JaPluginTest {
             public void build(final int number, final Builder settingsBuilder) {
                 settingsBuilder.put("http.cors.enabled", true);
                 settingsBuilder.put("http.cors.allow-origin", "*");
-                settingsBuilder.putArray("discovery.zen.ping.unicast.hosts", "localhost:9301-9310");
+                settingsBuilder.putList("discovery.zen.ping.unicast.hosts", "localhost:9301-9310");
             }
         }).build(newConfigs().clusterName(clusterName).numOfNode(numOfNode)
                 .pluginTypes("org.codelibs.elasticsearch.ja.JaPlugin,"
@@ -106,9 +107,7 @@ public class JaPluginTest {
                 + "\"ja_reload_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"kuromoji_user_dict_reload\",\"filter\":[\"reloadable_kuromoji_stemmer\"]}"
                 + "}"//
                 + "}}}";
-        runner.createIndex(index,
-                Settings.builder().loadFromSource(indexSettings)
-                        .build());
+        runner.createIndex(index, Settings.builder().loadFromSource(indexSettings, XContentType.JSON).build());
         runner.ensureYellow();
 
         // create a mapping
@@ -224,9 +223,7 @@ public class JaPluginTest {
                 + "\"ja_imark_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\",\"char_filter\":[\"iteration_mark\"]}"
                 + "}"//
                 + "}}}";
-        runner.createIndex(index,
-                Settings.builder().loadFromSource(indexSettings)
-                        .build());
+        runner.createIndex(index, Settings.builder().loadFromSource(indexSettings, XContentType.JSON).build());
         runner.ensureYellow();
 
         // create a mapping
@@ -297,9 +294,7 @@ public class JaPluginTest {
                 + "\"ja_psmark_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"whitespace\",\"char_filter\":[\"prolonged_sound_mark\"]}"
                 + "}"//
                 + "}}}";
-        runner.createIndex(index,
-                Settings.builder().loadFromSource(indexSettings)
-                        .build());
+        runner.createIndex(index, Settings.builder().loadFromSource(indexSettings, XContentType.JSON).build());
         runner.ensureYellow();
 
         // create a mapping
@@ -373,9 +368,7 @@ public class JaPluginTest {
                 + "\"ja_knum_analyzer\":{\"type\":\"custom\",\"tokenizer\":\"kuromoji_user_dict\",\"filter\":[\"kanji_number\"]}"
                 + "}"//
                 + "}}}";
-        runner.createIndex(index,
-                Settings.builder().loadFromSource(indexSettings)
-                        .build());
+        runner.createIndex(index, Settings.builder().loadFromSource(indexSettings, XContentType.JSON).build());
         runner.ensureYellow();
 
         // create a mapping

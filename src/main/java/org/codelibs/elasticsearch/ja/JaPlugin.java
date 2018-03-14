@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.codelibs.elasticsearch.ja.analysis.AlphaNumWordFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.CharTypeFilterFactory;
+import org.codelibs.elasticsearch.ja.analysis.DisableGraphFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.FlexiblePorterStemFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.IterationMarkCharFilterFactory;
 import org.codelibs.elasticsearch.ja.analysis.KanjiNumberFilterFactory;
@@ -58,6 +59,7 @@ public class JaPlugin extends Plugin implements AnalysisPlugin {
         extra.put("reloadable_stop", ReloadableStopFilterFactory::new);
         extra.put("flexible_porter_stem", FlexiblePorterStemFilterFactory::new);
         extra.put("alphanum_word", AlphaNumWordFilterFactory::new);
+        extra.put("disable_graph", DisableGraphFilterFactory::new);
         return extra;
     }
 

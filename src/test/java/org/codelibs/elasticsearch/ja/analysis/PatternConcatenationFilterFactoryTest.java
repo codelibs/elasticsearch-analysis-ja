@@ -6,9 +6,9 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 import java.util.Map;
 
+import org.codelibs.curl.CurlResponse;
 import org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner;
-import org.codelibs.elasticsearch.runner.net.Curl;
-import org.codelibs.elasticsearch.runner.net.CurlResponse;
+import org.codelibs.elasticsearch.runner.net.EcrCurl;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.settings.Settings.Builder;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -67,11 +67,11 @@ public class PatternConcatenationFilterFactoryTest {
 
         {
             String text = "平成 12年";
-            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+            try (CurlResponse response = EcrCurl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
                     .body("{\"analyzer\":\"ja_concat_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
+                        .getContent(EcrCurl.jsonParser).get("tokens");
                 assertEquals(1, tokens.size());
                 assertEquals("平成12年", tokens.get(0).get("token").toString());
             }
@@ -79,11 +79,11 @@ public class PatternConcatenationFilterFactoryTest {
 
         {
             String text = "aaa 昭和 3年 bbb";
-            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+            try (CurlResponse response = EcrCurl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
                     .body("{\"analyzer\":\"ja_concat_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
+                        .getContent(EcrCurl.jsonParser).get("tokens");
                 assertEquals(3, tokens.size());
                 assertEquals("aaa", tokens.get(0).get("token").toString());
                 assertEquals("昭和3年", tokens.get(1).get("token").toString());
@@ -93,11 +93,11 @@ public class PatternConcatenationFilterFactoryTest {
 
         {
             String text = "大正 10年";
-            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+            try (CurlResponse response = EcrCurl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
                     .body("{\"analyzer\":\"ja_concat_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
+                        .getContent(EcrCurl.jsonParser).get("tokens");
                 assertEquals(2, tokens.size());
                 assertEquals("大正", tokens.get(0).get("token").toString());
                 assertEquals("10年", tokens.get(1).get("token").toString());
@@ -106,11 +106,11 @@ public class PatternConcatenationFilterFactoryTest {
 
         {
             String text = "昭和 10";
-            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+            try (CurlResponse response = EcrCurl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
                     .body("{\"analyzer\":\"ja_concat_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
+                        .getContent(EcrCurl.jsonParser).get("tokens");
                 assertEquals(2, tokens.size());
                 assertEquals("昭和", tokens.get(0).get("token").toString());
                 assertEquals("10", tokens.get(1).get("token").toString());

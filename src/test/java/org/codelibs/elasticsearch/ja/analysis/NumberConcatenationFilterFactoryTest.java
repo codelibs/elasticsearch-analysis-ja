@@ -13,9 +13,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 
+import org.codelibs.curl.CurlResponse;
 import org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner;
-import org.codelibs.elasticsearch.runner.net.Curl;
-import org.codelibs.elasticsearch.runner.net.CurlResponse;
+import org.codelibs.elasticsearch.runner.net.EcrCurl;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.settings.Settings.Builder;
 import org.elasticsearch.common.xcontent.XContentType;
@@ -89,11 +89,11 @@ public class NumberConcatenationFilterFactoryTest {
 
         {
             String text = "100 円";
-            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+            try (CurlResponse response = EcrCurl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
                     .body("{\"analyzer\":\"ja_concat_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
+                        .getContent(EcrCurl.jsonParser).get("tokens");
                 assertEquals(1, tokens.size());
                 assertEquals("100円", tokens.get(0).get("token").toString());
             }
@@ -101,11 +101,11 @@ public class NumberConcatenationFilterFactoryTest {
 
         {
             String text = "aaa 100 人";
-            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+            try (CurlResponse response = EcrCurl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
                     .body("{\"analyzer\":\"ja_concat_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
+                        .getContent(EcrCurl.jsonParser).get("tokens");
                 assertEquals(2, tokens.size());
                 assertEquals("aaa", tokens.get(0).get("token").toString());
                 assertEquals("100人", tokens.get(1).get("token").toString());
@@ -114,11 +114,11 @@ public class NumberConcatenationFilterFactoryTest {
 
         {
             String text = "1 1 人 2 100 円 3";
-            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+            try (CurlResponse response = EcrCurl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
                     .body("{\"analyzer\":\"ja_concat_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
+                        .getContent(EcrCurl.jsonParser).get("tokens");
                 assertEquals(5, tokens.size());
                 assertEquals("1", tokens.get(0).get("token").toString());
                 assertEquals("1人", tokens.get(1).get("token").toString());

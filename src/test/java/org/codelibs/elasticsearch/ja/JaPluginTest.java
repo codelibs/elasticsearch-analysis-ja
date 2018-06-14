@@ -13,9 +13,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Map;
 
+import org.codelibs.curl.CurlResponse;
 import org.codelibs.elasticsearch.runner.ElasticsearchClusterRunner;
-import org.codelibs.elasticsearch.runner.net.Curl;
-import org.codelibs.elasticsearch.runner.net.CurlResponse;
+import org.codelibs.elasticsearch.runner.net.EcrCurl;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.common.settings.Settings;
@@ -149,21 +149,21 @@ public class JaPluginTest {
             assertDocCount(1, index, type, "msg1", text);
             assertDocCount(1, index, type, "msg2", text);
 
-            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+            try (CurlResponse response = EcrCurl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
                     .body("{\"analyzer\":\"ja_reload_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
+                        .getContent(EcrCurl.jsonParser).get("tokens");
                 assertEquals("東京", tokens.get(0).get("token").toString());
                 assertEquals("スカイツリ", tokens.get(1).get("token").toString());
             }
 
             text = "朝青龍";
-            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+            try (CurlResponse response = EcrCurl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
                     .body("{\"analyzer\":\"ja_reload_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
+                        .getContent(EcrCurl.jsonParser).get("tokens");
                 assertEquals("朝", tokens.get(0).get("token").toString());
                 assertEquals("青龍", tokens.get(1).get("token").toString());
             }
@@ -188,22 +188,22 @@ public class JaPluginTest {
             assertDocCount(1, index, type, "msg1", text);
             assertDocCount(2, index, type, "msg2", text);
 
-            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+            try (CurlResponse response = EcrCurl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
                     .body("{\"analyzer\":\"ja_reload_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
+                        .getContent(EcrCurl.jsonParser).get("tokens");
                 assertEquals("東京", tokens.get(0).get("token").toString());
                 assertEquals("スカイ", tokens.get(1).get("token").toString());
                 assertEquals("ツリー", tokens.get(2).get("token").toString());
             }
 
             text = "朝青龍";
-            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+            try (CurlResponse response = EcrCurl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
                     .body("{\"analyzer\":\"ja_reload_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
+                        .getContent(EcrCurl.jsonParser).get("tokens");
                 assertEquals(text, tokens.get(0).get("token").toString());
             }
         }
@@ -269,11 +269,11 @@ public class JaPluginTest {
         for (int i = 0; i < inputs.length; i++) {
             String[] values = inputs[i].split(" ");
             String text = values[0];
-            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+            try (CurlResponse response = EcrCurl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
                     .body("{\"analyzer\":\"ja_imark_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
+                        .getContent(EcrCurl.jsonParser).get("tokens");
                 assertEquals(values[1], tokens.get(0).get("token").toString());
             }
         }
@@ -340,11 +340,11 @@ public class JaPluginTest {
         for (String psm : psms) {
             String text = "あ" + psm;
             assertDocCount(1, index, type, "msg1", text);
-            try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+            try (CurlResponse response = EcrCurl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
                     .body("{\"analyzer\":\"ja_psmark_analyzer\",\"text\":\"" + text + "\"}").execute()) {
                 @SuppressWarnings("unchecked")
                 List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                        .getContentAsMap().get("tokens");
+                        .getContent(EcrCurl.jsonParser).get("tokens");
                 assertEquals("あー", tokens.get(0).get("token").toString());
             }
         }
@@ -410,11 +410,11 @@ public class JaPluginTest {
         assertDocCount(0, index, type, "msg2", "12時間");
 
         String text = "一億九千万円";
-        try (CurlResponse response = Curl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
+        try (CurlResponse response = EcrCurl.post(node, "/" + index + "/_analyze").header("Content-Type", "application/json")
                 .body("{\"analyzer\":\"ja_knum_analyzer\",\"text\":\"" + text + "\"}").execute()) {
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> tokens = (List<Map<String, Object>>) response
-                    .getContentAsMap().get("tokens");
+                    .getContent(EcrCurl.jsonParser).get("tokens");
             assertEquals("190000000", tokens.get(0).get("token").toString());
             assertEquals("円", tokens.get(1).get("token").toString());
         }
